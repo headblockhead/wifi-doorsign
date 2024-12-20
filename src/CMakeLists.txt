@@ -1,3 +1,1 @@
-idf_component_register(SRCS "main.c" INCLUDE_DIRS "")
-
-target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
