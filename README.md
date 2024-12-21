@@ -1,4 +1,4 @@
-# e-Paper display sign
+# wifi-doorsign
 
 ## Tasks
 

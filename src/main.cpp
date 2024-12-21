@@ -1,42 +1,40 @@
-#include "epaper.h"
-#include "epaper_dev.h"
-#include "image.h"
-#include "paint.h"
+ /**
+  ******************************************************************************
+  * @file    Loader.h
+  * @author  Waveshare Team
+  * @version V1.0.0
+  * @date    23-January-2018
+  * @brief   The main file.
+  *          This file provides firmware functions:
+  *           + Initialization of Serial Port, SPI pins and server
+  *           + Main loop
+  *
+  ******************************************************************************
+*/ 
 
-#include <Arduino.h>
-#include <stdio.h>
-#include <stdlib.h>
+/* Includes ------------------------------------------------------------------*/
+#include "srvr.h" // Server functions
 
-void setup(void) {
-  printf("Hello world!\n");
+/* Entry point ----------------------------------------------------------------*/
+void setup() 
+{
+    // Serial port initialization
+    Serial.begin(115200);
+    delay(10);
 
-  DEV_Module_Init();
-  EPD_5IN65F_Init();
-  EPD_5IN65F_Clear(EPD_5IN65F_WHITE);
-  DEV_Delay_ms(100);
+    // Server initialization
+    Srvr__setup();
 
-  UBYTE *blackImage;
-  UDOUBLE Imagesize =
-      ((EPD_5IN65F_WIDTH % 2 == 0) ? (EPD_5IN65F_WIDTH / 2)
-                                   : (EPD_5IN65F_WIDTH / 2 + 1)) *
-      EPD_5IN65F_HEIGHT;
-  printf("Imagesize %d\r\n", Imagesize);
-  if ((blackImage = (UBYTE *)malloc(Imagesize / 2)) == NULL) {
-    printf("Failed to apply for black memory...\r\n");
-    while (1)
-      ;
-  }
-  Paint_NewImage(blackImage, EPD_5IN65F_WIDTH, EPD_5IN65F_HEIGHT / 2, 0,
-                 EPD_5IN65F_WHITE);
-  Paint_SetScale(7);
+    // SPI initialization
+    EPD_initSPI();
 
-  EPD_5IN65F_Display(gImage_5in65f_test);
-  EPD_5IN65F_Sleep();
-
-  free(blackImage);
-  blackImage = NULL;
-
-  DEV_Delay_ms(5000);
+    // Initialization is complete
+    Serial.print("\r\nOk!\r\n");
 }
 
-void loop(void) {}
+/* The main loop -------------------------------------------------------------*/
+void loop() 
+{
+    // The server state observation
+    Srvr__loop();
+}
