@@ -14,6 +14,7 @@
 #define EPD_COLOR_ORANGE 0x6
 #define EPD_COLOR_CLEAR 0x7
 
+void EPD_Reset(void);
 void EPD_Init(void);
 void EPD_Clear(uint8_t color);
 void EPD_SendCommand(uint8_t Reg);

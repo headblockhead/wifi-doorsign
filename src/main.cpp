@@ -48,68 +48,65 @@ void setup() {
   printf("Server started\n");
 
   // Write IP address to display
-  if (false) {
-    unsigned char *image1 = (unsigned char *)malloc(DISPLAY_WIDTH * 4 * 24 / 2);
-    Paint_NewImage(image1, DISPLAY_WIDTH, 4 * 24, 0, EPD_COLOR_WHITE);
-    Paint_Clear(EPD_COLOR_WHITE);
-    Paint_DrawString(0, 0, "Connected to:", &Font24, EPD_COLOR_WHITE,
-                     EPD_COLOR_BLACK);
-    Paint_DrawString(14 * 17, 0, ssid, &Font24, EPD_COLOR_WHITE,
-                     EPD_COLOR_BLACK);
-    Paint_DrawString(0, 24 * 1, "IP address:", &Font24, EPD_COLOR_WHITE,
-                     EPD_COLOR_BLACK);
-    Paint_DrawString(12 * 17, 24, WiFi.localIP().toString().c_str(), &Font24,
-                     EPD_COLOR_WHITE, EPD_COLOR_BLACK);
-    Paint_DrawString(0, 24 * 2, "Gateway:", &Font24, EPD_COLOR_WHITE,
-                     EPD_COLOR_BLACK);
-    Paint_DrawString(9 * 17, 48, WiFi.gatewayIP().toString().c_str(), &Font24,
-                     EPD_COLOR_WHITE, EPD_COLOR_BLACK);
-    Paint_DrawString(0, 24 * 3, "Subnet:", &Font24, EPD_COLOR_WHITE,
-                     EPD_COLOR_BLACK);
-    Paint_DrawString(8 * 17, 24 * 3, WiFi.subnetMask().toString().c_str(),
-                     &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+  unsigned char *image1 = (unsigned char *)malloc(DISPLAY_WIDTH * 4 * 24 / 2);
+  Paint_NewImage(image1, DISPLAY_WIDTH, 4 * 24, 0, EPD_COLOR_WHITE);
+  Paint_Clear(EPD_COLOR_WHITE);
+  Paint_DrawString(0, 0, "Connected to:", &Font24, EPD_COLOR_WHITE,
+                   EPD_COLOR_BLACK);
+  Paint_DrawString(14 * 17, 0, ssid, &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+  Paint_DrawString(0, 24 * 1, "IP address:", &Font24, EPD_COLOR_WHITE,
+                   EPD_COLOR_BLACK);
+  Paint_DrawString(12 * 17, 24, WiFi.localIP().toString().c_str(), &Font24,
+                   EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+  Paint_DrawString(0, 24 * 2, "Gateway:", &Font24, EPD_COLOR_WHITE,
+                   EPD_COLOR_BLACK);
+  Paint_DrawString(9 * 17, 48, WiFi.gatewayIP().toString().c_str(), &Font24,
+                   EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+  Paint_DrawString(0, 24 * 3, "Subnet:", &Font24, EPD_COLOR_WHITE,
+                   EPD_COLOR_BLACK);
+  Paint_DrawString(8 * 17, 24 * 3, WiFi.subnetMask().toString().c_str(),
+                   &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
 
-    printf("Sending to EPD\n");
-    EPD_SendCommand(0x61);
-    EPD_SendData(0x02);
-    EPD_SendData(0x58);
-    EPD_SendData(0x01);
-    EPD_SendData(0xC0);
-    EPD_SendCommand(0x10);
-    for (uint32_t i = 0; i < DISPLAY_HEIGHT; i++) {
-      for (uint32_t j = 0; j < DISPLAY_WIDTH / 2; j++) {
-        if (i < 24 * 4) {
-          EPD_SendData(image1[j + i * DISPLAY_WIDTH / 2]);
-        } else {
-          // Generate color bars.
-          if (j < 50) {
-            EPD_SendData(0x00);
-          } else if (j < 100) {
-            EPD_SendData(0x22);
-          } else if (j < 150) {
-            EPD_SendData(0x33);
-          } else if (j < 200) {
-            EPD_SendData(0x44);
-          } else if (j < 250) {
-            EPD_SendData(0x55);
-          } else if (j < 300) {
-            EPD_SendData(0x66);
-          }
+  printf("Sending to EPD\n");
+  EPD_SendCommand(0x61);
+  EPD_SendData(0x02);
+  EPD_SendData(0x58);
+  EPD_SendData(0x01);
+  EPD_SendData(0xC0);
+  EPD_SendCommand(0x10);
+  for (uint32_t i = 0; i < DISPLAY_HEIGHT; i++) {
+    for (uint32_t j = 0; j < DISPLAY_WIDTH / 2; j++) {
+      if (i < 24 * 4) {
+        EPD_SendData(image1[j + i * DISPLAY_WIDTH / 2]);
+      } else {
+        // Generate color bars.
+        if (j < 50) {
+          EPD_SendData(0x00);
+        } else if (j < 100) {
+          EPD_SendData(0x22);
+        } else if (j < 150) {
+          EPD_SendData(0x33);
+        } else if (j < 200) {
+          EPD_SendData(0x44);
+        } else if (j < 250) {
+          EPD_SendData(0x55);
+        } else if (j < 300) {
+          EPD_SendData(0x66);
         }
       }
     }
-
-    printf("Displaying\n");
-    EPD_SendCommand(0x04);
-    EPD_WaitUntilBusyHigh();
-    EPD_SendCommand(0x12);
-    EPD_WaitUntilBusyHigh();
-    EPD_SendCommand(0x02);
-    EPD_WaitUntilBusyLow();
-
-    printf("Sleeping\n");
-    EPD_Sleep();
   }
+
+  printf("Displaying\n");
+  EPD_SendCommand(0x04);
+  EPD_WaitUntilBusyHigh();
+  EPD_SendCommand(0x12);
+  EPD_WaitUntilBusyHigh();
+  EPD_SendCommand(0x02);
+  EPD_WaitUntilBusyLow();
+
+  printf("Sleeping\n");
+  EPD_Sleep();
 }
 
 void loop() {
@@ -117,9 +114,10 @@ void loop() {
   if (!client) {
     return;
   }
-  printf("New client\n");
+  printf("New client!\n");
   int timeout_max = 1000;
   int timeout = 0;
+  printf("Waiting for client data");
   while (!client.available()) {
     delay(1);
     printf(".");
@@ -129,43 +127,220 @@ void loop() {
       return;
     }
   }
+  printf("\nReciving data:\n");
+  int i = 0;
+  bool post = 0;
+  bool get = 0;
+  bool dataStart = false;
+  int newline_count = 0;
   while (client.available()) {
     char c = client.read();
-    printf("%c", c);
+
+    if (i == 0 && c == 'P') {
+      printf("POST\n");
+      post = true;
+    }
+    if (i == 1 && c == 'U') {
+      printf("NOT POST\n");
+      post = false;
+    }
+    if (i == 0 && c == 'G') {
+      printf("GET\n");
+      get = true;
+    }
+
+    if (c == '\n' || c == '\r') {
+      newline_count++;
+    } else if (newline_count < 4) {
+      newline_count = 0;
+    }
+
+    if (newline_count == 4 && post && !dataStart) {
+      printf("End of headers\n");
+      dataStart = true;
+      EPD_Init();
+      EPD_SendCommand(0x61);
+      EPD_SendData(0x02);
+      EPD_SendData(0x58);
+      EPD_SendData(0x01);
+      EPD_SendData(0xC0);
+      EPD_SendCommand(0x10);
+    }
+    if (dataStart) {
+      EPD_SendData(c);
+    }
+    i++;
   }
+
+  printf("\n");
+  printf("Sending response\n");
+
+  if (post) {
+    client.print("HTTP/1.1 200 OK\nContent-Type: text/html\n\n");
+    client.stop();
+    EPD_WaitUntilBusyHigh();
+    EPD_SendCommand(0x04);
+    EPD_WaitUntilBusyHigh();
+    EPD_SendCommand(0x12);
+    EPD_WaitUntilBusyHigh();
+    EPD_SendCommand(0x02);
+    EPD_WaitUntilBusyLow();
+    printf("Done\n");
+    return;
+  }
+
   client.print("HTTP/1.1 200 OK\nContent-Type: text/html\n\n");
   client.print(
-      // ---
-      "<!DOCTYPE html>"
-      "<html>"
-      "<head><title>wifi-doorsign</title></head>"
-      "<body>"
-      "<h1>WiFi Doorsign</h1>"
-      "<input type=\"file\" id=\"input_file\" "
-      "onchange=\"handleFileSelect(this)\" />"
-      "Input:"
-      "<img id=\"input_img\" src=\"\" />"
-      "Output:"
-      "<img width=\"600\" height=\"448\" id=\"output_img\" src=\"\" />"
-      "<br/>"
-      // ---
-      "<script>"
-      // ---
-      "function handleFileSelect(input) {"
-      /**/ "if (input.files && input.files[0]) {"
-      /*  */ "var reader = new FileReader();"
-      /*  */ "reader.onload = function(e) { "
-      /*     */ "document.getElementById('input_img').setAttribute("
-      /*    */ "\"src\",e.target.result);"
-      /*  */ "};"
-      /*  */ "reader.readAsDataURL(input.files[0]);"
-      /**/ "}"
-      "}"
-      // ---
-      "</script>"
-      // ---
-      "</body>"
-      "</html>"
-      // ---
-  );
+      "<!DOCTYPE html><html><head><title>wifi-doorsign</title></head>");
+  client.print("<body>");
+  client.print("<h1>Upload image</h1>");
+  client.print("<input type=\"file\" id=\"input_file\" name=\"input_file\" "
+               "accept=\"image/*\" />");
+  client.print("<img width=\"600\" height=\"448\" id=\"img\" src=\"\" "
+               "alt=\"Source image\" style=\"display:none\" />");
+  client.print("</br>");
+  client.print("<canvas id=\"canvas\" width=\"600\" height=\"448\"></canvas>");
+  client.print("</br>");
+  client.print("<button id=\"push_button\">Push to screen</button>");
+  client.print("<div id=\"loading\" style=\"display:none\">Sending...</div>");
+  client.print("<script>");
+
+  client.print("var palette = "
+               "[[0,0,0],[255,255,255],[0,255,0],[0,0,255],[255,0,0],[255,255,"
+               "0],[255,128,0]];");
+
+  // set input listener
+  client.print("document.getElementById('input_file').addEventListener('change'"
+               ", function(e) {");
+  client.print("var file = e.target.files[0];");
+  client.print("var reader = new FileReader();");
+  client.print("reader.onload = function(e) {");
+  client.print("document.getElementById('img').src = e.target.result;");
+  client.print("};");
+  client.print("reader.readAsDataURL(file);");
+  client.print("img.onload = function() {");
+  client.print("var new_canvas = seven_color_dither(this);");
+  client.print("document.getElementById('canvas').getContext('2d').drawImage("
+               "new_canvas, 0, 0);");
+  client.print("};");
+  client.print("});");
+
+  client.print(
+      "document.getElementById('push_button').addEventListener('click', "
+      "function() {");
+  client.print("pushImage(document.getElementById('canvas'));");
+  client.print("});");
+
+  // push image to device function
+  client.print("function pushImage(canvas) {");
+  client.print("var ctx = canvas.getContext('2d');");
+  client.print("var imgData = ctx.getImageData(0, 0, 600, 448);");
+  client.print("var data = imgData.data;");
+  client.print("var textify = '';");
+  client.print("for (var i = 0; i < data.length; i += 8) {");
+  client.print("var cha = 0x00;");
+  client.print("var r1 = data[i];");
+  client.print("var g1 = data[i + 1];");
+  client.print("var b1 = data[i + 2];");
+  client.print("var ind1 = getNear(r1,g1,b1);");
+  client.print("cha |= ind1 << 4;");
+  client.print("var r2 = data[i + 4];");
+  client.print("var g2 = data[i + 5];");
+  client.print("var b2 = data[i + 6];");
+  client.print("var ind2 = getNear(r2,g2,b2);");
+  client.print("cha |= ind2;");
+  client.print("textify += String.fromCharCode(cha);");
+  client.print("}");
+  client.print("var xhr = new XMLHttpRequest();");
+  client.print("xhr.open('POST', '/image', true);");
+  client.print(
+      "document.getElementById(\"loading\").style.display = \"block\";");
+  client.print("xhr.onload = function() {");
+  client.print(
+      "document.getElementById(\"loading\").style.display = \"none\";");
+  client.print("};");
+  client.print("xhr.send(textify);");
+  client.print("}");
+
+  // addVal function
+  client.print("function addVal(c,r,g,b,k){");
+  client.print("return[c[0]+(r*k)/32,c[1]+(g*k)/32,c[2]+(b*k)/32];");
+  client.print("}");
+
+  // getNear function
+  client.print("function getNear(r,g,b) {");
+  client.print("var ind= 0;");
+  client.print("var err= 1000000;");
+  client.print("for (var i = 0; i < 7; i++) {");
+  client.print("var curErr = "
+               "(r-palette[i][0])*(r-palette[i][0])+(g-palette[i][1])*(g-"
+               "palette[i][1])+(b-palette[i][2])*(b-palette[i][2]);");
+  client.print("if (curErr < err) {");
+  client.print("err = curErr;");
+  client.print("ind = i;");
+  client.print("}");
+  client.print("}");
+  client.print("return ind;");
+  client.print("}");
+
+  // seven_color_dither function
+  client.print("function seven_color_dither(img) {");
+  client.print("var canvas = document.createElement('canvas');");
+  client.print("var ctx = canvas.getContext('2d');");
+  client.print("var width = 600;");
+  client.print("var height = 448;");
+  client.print("canvas.width = width;");
+  client.print("canvas.height = height;");
+  client.print("ctx.drawImage(img, 0, 0,width,height);");
+  client.print("var index = 0;");
+  client.print("var pSrc = ctx.getImageData(0, 0, width, height);");
+  client.print("var pDst = ctx.createImageData(width, height);");
+  client.print("var aInd = 0;");
+  client.print("var bInd = 1;");
+  client.print("var errArr = new Array(2);");
+  client.print("errArr[0] = new Array(width);");
+  client.print("errArr[1] = new Array(width);");
+  client.print("for (var i = 0; i < width; i++) {");
+  client.print("errArr[bInd][i] = [0,0,0];");
+  client.print("}");
+  client.print("for (var y = 0; y < height; y++) {");
+  client.print("aInd = ((bInd=aInd)+1)&1;");
+  client.print("for (var x = 0; x < width; x++) {");
+  client.print("errArr[bInd][x] = [0,0,0];");
+  client.print("}");
+  client.print("for (var x = 0; x < width; x++) {");
+  client.print("var pos = (y * width + x) * 4;");
+  client.print("var old = errArr[aInd][x];");
+  client.print("var r = pSrc.data[pos] + old[0];");
+  client.print("var g = pSrc.data[pos + 1] + old[1];");
+  client.print("var b = pSrc.data[pos + 2] + old[2];");
+  client.print("var colVal = palette[getNear(r,g,b)];");
+  client.print("pDst.data[index++] = colVal[0];");
+  client.print("pDst.data[index++] = colVal[1];");
+  client.print("pDst.data[index++] = colVal[2];");
+  client.print("pDst.data[index++] = 255;");
+  client.print("r = (r - colVal[0]);");
+  client.print("g = (g - colVal[1]);");
+  client.print("b = (b - colVal[2]);");
+  client.print("if (x ==0) {");
+  client.print("errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,7.0);");
+  client.print("errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,2.0);");
+  client.print("errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0);");
+  client.print("} else if (x == width - 1) {");
+  client.print("errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,7.0);");
+  client.print("errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,9.0);");
+  client.print("} else {");
+  client.print("errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,3.0);");
+  client.print("errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,5.0);");
+  client.print("errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,1.0);");
+  client.print("errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0);");
+  client.print("}");
+  client.print("}");
+  client.print("}");
+  client.print("ctx.putImageData(pDst, 0, 0);");
+  client.print("return canvas;");
+  client.print("}");
+  client.print("</script>");
+  client.print("</body></html>");
+  client.stop();
 }
