@@ -14,9 +14,11 @@
 #define EPD_COLOR_ORANGE 0x6
 #define EPD_COLOR_CLEAR 0x7
 
+void EPD_Init(void);
 void EPD_Clear(uint8_t color);
+void EPD_SendCommand(uint8_t Reg);
+void EPD_SendData(uint8_t Data);
+void EPD_WaitUntilBusyHigh(void);
+void EPD_WaitUntilBusyLow(void);
 void EPD_Sleep(void);
 void EPD_SendImage(const uint8_t *image);
-void EPD_Init(void);
-void EPD_SendPartImage(const uint8_t *image, uint16_t xstart, uint16_t ystart,
-                       uint16_t image_width, uint16_t image_heigh);
