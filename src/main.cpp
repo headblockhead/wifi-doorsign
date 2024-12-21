@@ -1,40 +1,43 @@
- /**
-  ******************************************************************************
-  * @file    Loader.h
-  * @author  Waveshare Team
-  * @version V1.0.0
-  * @date    23-January-2018
-  * @brief   The main file.
-  *          This file provides firmware functions:
-  *           + Initialization of Serial Port, SPI pins and server
-  *           + Main loop
-  *
-  ******************************************************************************
-*/ 
+#include "display.h"
+#include "paint.h"
+#include "pinout.h"
+#include <Arduino.h>
 
-/* Includes ------------------------------------------------------------------*/
-#include "srvr.h" // Server functions
+unsigned char image1[134400];
 
-/* Entry point ----------------------------------------------------------------*/
-void setup() 
-{
-    // Serial port initialization
-    Serial.begin(115200);
-    delay(10);
+void setup() {
+  Serial.begin(115200);
+  printf("Starting...\n");
 
-    // Server initialization
-    Srvr__setup();
+  printf("Setting up SPI\n");
+  pinMode(PIN_SPI_BUSY, INPUT);
+  pinMode(PIN_SPI_RST, OUTPUT);
+  pinMode(PIN_SPI_DC, OUTPUT);
+  pinMode(PIN_SPI_SCK, OUTPUT);
+  digitalWrite(PIN_SPI_SCK, 0);
+  pinMode(PIN_SPI_DIN, OUTPUT);
+  pinMode(PIN_SPI_CS, OUTPUT);
+  digitalWrite(PIN_SPI_CS, 1);
 
-    // SPI initialization
-    EPD_initSPI();
+  printf("Initializing EPD\n");
+  EPD_Init();
 
-    // Initialization is complete
-    Serial.print("\r\nOk!\r\n");
+  // printf("Clearing EPD\n");
+  // EPD_Clear(COLOR_WHITE);
+
+  printf("Drawing...\n");
+  Paint_NewImage(image1, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, EPD_COLOR_WHITE);
+  Paint_Clear(EPD_COLOR_WHITE);
+  Paint_DrawRectangle(10, 10, 110, 110, EPD_COLOR_BLUE, DOT_PIXEL_1X1,
+                      DRAW_FILL_FULL);
+  Paint_DrawRectangle(120, 10, 220, 110, EPD_COLOR_BLACK, DOT_PIXEL_1X1,
+                      DRAW_FILL_FULL);
+
+  printf("Sending to EPD\n");
+  EPD_SendImage(image1);
+
+  printf("Sleeping\n");
+  EPD_Sleep();
 }
 
-/* The main loop -------------------------------------------------------------*/
-void loop() 
-{
-    // The server state observation
-    Srvr__loop();
-}
+void loop() {}
