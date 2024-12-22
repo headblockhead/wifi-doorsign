@@ -1,7 +1,9 @@
+// Having issues here? See wifi_example.h!
+#include "wifi.h"
+
 #include "display.h"
 #include "paint.h"
 #include "pinout.h"
-#include "wifi.h"
 #include <Arduino.h>
 #include <WiFi.h>
 
@@ -190,19 +192,57 @@ void loop() {
   client.print("<h1>wifi-doorsign ");
   client.print(WiFi.localIP());
   client.print("</h1>");
-  client.print("<label for=\"input_text\">text overlay:</label>");
-  client.print("<input type=\"text\" id=\"input_text\" name=\"input_text\" "
-               "placeholder=\"S12\" />");
-  client.print("</br>");
+  client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
+  client.print("<div style=\"width: 600px; display: flex; flex-direction: "
+               "row; gap: 2px;\">");
+  client.print("<label for=\"text_fill_number\">Text fill color: </label>");
+  client.print("<input type=\"number\" id=\"text_fill_number\" "
+               "name=\"text_fill_number\" "
+               "placeholder=\"170\" value=\"170\" min=\"0\" max=\"255\"/>");
+  client.print(
+      "<input type=\"range\" id=\"text_fill_range\" name=\"text_fill_range\" ");
+  client.print("min=\"0\" max=\"255\" step=\"1\" value=\"170\" "
+               "style=\"flex-grow:1;\"/>");
+  client.print("</div>");
+
+  client.print("<div style=\"width: 600px; display: flex; flex-direction: "
+               "row; gap: 2px;\">");
+  client.print(
+      "<label for=\"text_outline_number\">Text outline color: </label>");
+  client.print("<input type=\"number\" id=\"text_outline_number\" "
+               "name=\"text_outline_number\" "
+               "placeholder=\"170\" value=\"0\" min=\"0\" max=\"255\"/>");
+  client.print("<input type=\"range\" id=\"text_outline_range\" "
+               "name=\"text_outline_range\" ");
+  client.print("min=\"0\" max=\"255\" step=\"1\" value=\"0\" "
+               "style=\"flex-grow:1;\"/>");
+  client.print("</div>");
+
+  client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
+  client.print("<div style=\"width: 600px; display: flex; flex-direction: "
+               "column; gap: 2px;\">");
+  client.print("<label for=\"input_text_top\">Class/Course: </label>");
+  client.print(
+      "<input type=\"text\" id=\"input_text_top\" name=\"input_text_top\" "
+      "placeholder=\"Computer Science\"/>");
+  client.print("<label for=\"input_title\">Room: </label>");
+  client.print("<input type=\"text\" id=\"input_title\" name=\"input_title\" "
+               "placeholder=\"S12\"/>");
+  client.print("<label for=\"input_text_bottom\">Extra info: </label>");
+  client.print("<input type=\"text\" id=\"input_text_bottom\" "
+               "name=\"input_text_bottom\" "
+               "placeholder=\"13:45-14:35\" />");
+  client.print("</div>");
+  client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
   client.print("<input style=\"margin-bottom: 4px\"type=\"file\" "
                "id=\"input_file\" name=\"input_file\" "
                "accept=\"image/*\" />");
   client.print("<img width=\"600\" height=\"448\" id=\"img\" src=\"\" "
                "alt=\"Source image\" style=\"display:none\" />");
-  client.print("</br>");
+  client.print("<br/>");
   client.print("<canvas id=\"canvas\" width=\"600\" height=\"448\" "
                "style=\"outline: black 1px solid\"></canvas>");
-  client.print("</br>");
+  client.print("<br/>");
   client.print("<div style=\"width: 600px; display: flex;\">");
   client.print("<button style=\"margin-right: 7px\" id=\"push_button\">Push to "
                "screen</button>");
@@ -225,34 +265,7 @@ void loop() {
   client.print("};");
   client.print("reader.readAsDataURL(file);");
   client.print("img.onload = function() {");
-  client.print("var width = 600;");
-  client.print("var height = 448;");
-  client.print("var text = document.getElementById('input_text').value;");
-
-  client.print("var canvas = document.getElementById('canvas');");
-  client.print("var ctx = canvas.getContext('2d');");
-
-  client.print("canvas.width = width;");
-  client.print("canvas.height = height;");
-
-  client.print("ctx.drawImage(img, 0, 0,width,height);");
-
-  client.print("ctx.font = '288px Ubuntu Mono';");
-  client.print("ctx.fillStyle = '#AAAAAAFF';");
-  client.print("ctx.lineWidth = 8;");
-  client.print("ctx.globalCompositeOperation = 'luminosity';");
-  client.print("ctx.fillText(text, 300 - "
-               "ctx.measureText(text).width/2"
-               ",448-144);");
-  client.print("ctx.globalCompositeOperation = 'source-over';");
-  client.print("ctx.strokeText(text, 300 - "
-               "ctx.measureText(text).width/2"
-               ",448-144);");
-
-  client.print("ctx.globalCompositeOperation = 'source-over';");
-  client.print("var new_canvas = seven_color_dither(ctx);");
-  client.print("ctx.drawImage("
-               "new_canvas, 0, 0);");
+  client.print("updateImage(img);");
   client.print("};");
   client.print("});");
 
@@ -261,6 +274,107 @@ void loop() {
       "function() {");
   client.print("pushImage(document.getElementById('canvas'));");
   client.print("});");
+
+  client.print(
+      "document.getElementById('input_title').addEventListener('input', "
+      "function() {");
+  client.print("updateImage(document.getElementById('img'));");
+  client.print("});");
+  client.print(
+      "document.getElementById('input_text_top').addEventListener('input', "
+      "function() {");
+  client.print("updateImage(document.getElementById('img'));");
+  client.print("});");
+  client.print(
+      "document.getElementById('input_text_bottom').addEventListener('input', "
+      "function() {");
+  client.print("updateImage(document.getElementById('img'));");
+  client.print("});");
+
+  client.print(
+      "document.getElementById('text_fill_number').addEventListener('input'"
+      ", function() {");
+  client.print("document.getElementById('text_fill_range').value = "
+               "document.getElementById('text_fill_number').value;");
+  client.print("updateImage(document.getElementById('img'));");
+  client.print("});");
+
+  client.print(
+      "document.getElementById('text_fill_range').addEventListener('input'"
+      ", function() {");
+  client.print("document.getElementById('text_fill_number').value = "
+               "document.getElementById('text_fill_range').value;");
+  client.print("updateImage(document.getElementById('img'));");
+  client.print("});");
+
+  client.print(
+      "document.getElementById('text_outline_number').addEventListener('input'"
+      ", function() {");
+  client.print("document.getElementById('text_outline_range').value = "
+               "document.getElementById('text_outline_number').value;");
+  client.print("updateImage(document.getElementById('img'));");
+  client.print("});");
+
+  client.print(
+      "document.getElementById('text_outline_range').addEventListener('input'"
+      ", function() {");
+  client.print("document.getElementById('text_outline_number').value = "
+               "document.getElementById('text_outline_range').value;");
+  client.print("updateImage(document.getElementById('img'));");
+  client.print("});");
+
+  client.print("function updateImage(img) {");
+  client.print("var width = 600;");
+  client.print("var height = 448;");
+  client.print("var text = document.getElementById('input_title').value;");
+  client.print(
+      "var top_text = document.getElementById('input_text_top').value;");
+  client.print(
+      "var bottom_text = document.getElementById('input_text_bottom').value;");
+  client.print("var canvas = document.getElementById('canvas');");
+  client.print("var ctx = canvas.getContext('2d');");
+  client.print("canvas.width = width;");
+  client.print("canvas.height = height;");
+  client.print("ctx.drawImage(img, 0, 0,width,height);");
+  client.print("ctx.font = '288px Ubuntu Mono';");
+  client.print("var textBrightness = "
+               "document.getElementById('text_fill_number').valueAsNumber;");
+  client.print("var outlineBrightness = "
+               "document.getElementById('text_outline_number').valueAsNumber;");
+  client.print("ctx.fillStyle = "
+               "\"#\" + textBrightness.toString(16).repeat(3) + \"ff\";");
+  client.print("ctx.strokeStyle = "
+               "\"#\" + outlineBrightness.toString(16).repeat(3) + \"ff\";");
+  client.print("ctx.lineWidth = 8;");
+  client.print("ctx.globalCompositeOperation = 'luminosity';");
+  client.print("ctx.fillText(text, 300 - "
+               "ctx.measureText(text).width/2"
+               ",448-144);");
+  client.print("ctx.font = '72px Ubuntu Mono';");
+  client.print("ctx.lineWidth = 2;");
+  client.print("ctx.fillText(top_text, 300 - "
+               "ctx.measureText(top_text).width/2"
+               ",72);");
+  client.print("ctx.fillText(bottom_text, 300 - "
+               "ctx.measureText(bottom_text).width/2"
+               ",448-36);");
+  client.print("ctx.globalCompositeOperation = 'source-over';");
+  client.print("ctx.font = '288px Ubuntu Mono';");
+  client.print("ctx.lineWidth = 8;");
+  client.print("ctx.strokeText(text, 300 - "
+               "ctx.measureText(text).width/2"
+               ",448-144);");
+  client.print("ctx.font = '72px Ubuntu Mono';");
+  client.print("ctx.lineWidth = 2;");
+  client.print("ctx.strokeText(top_text, 300 - "
+               "ctx.measureText(top_text).width/2"
+               ",72);");
+  client.print("ctx.strokeText(bottom_text, 300 - "
+               "ctx.measureText(bottom_text).width/2"
+               ",448-36);");
+  client.print("var new_canvas = seven_color_dither(ctx);");
+  client.print("ctx.drawImage(new_canvas, 0, 0);");
+  client.print("}");
 
   // push image to device function
   client.print("function pushImage(canvas) {");
