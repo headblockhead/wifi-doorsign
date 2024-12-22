@@ -231,21 +231,32 @@ void loop() {
                "placeholder=\"13:45-14:35\" />");
   client.print("</div>");
   client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
+  client.print("<div style=\"width: 600px; display: flex; flex-direction: "
+               "row;\">");
   client.print("<input style=\"margin-bottom: 4px\"type=\"file\" "
                "id=\"input_file\" name=\"input_file\" "
                "accept=\"image/*\" />");
-  client.print("<img width=\"600\" height=\"448\" id=\"img\" src=\"\" "
-               "alt=\"Source image\" style=\"display:none\" />");
-  client.print("<br/>");
+  client.print("<small style=\"text-align: right; flex-grow:1; align-content: "
+               "end; padding-bottom:2px;"
+               "\">600x448px</small>");
+  client.print("</div>");
   client.print("<canvas id=\"canvas\" width=\"600\" height=\"448\" "
                "style=\"outline: black 1px solid\"></canvas>");
-  client.print("<br/>");
   client.print("<div style=\"width: 600px; display: flex;\">");
   client.print("<button style=\"margin-right: 7px\" id=\"push_button\">Push to "
                "screen</button>");
   client.print("<progress style=\"flex-grow: 1\" id=\"progress\" value=\"0\" "
                "max=\"100\"></progress>");
   client.print("</div>");
+  client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
+  client.print(
+      "<small>Built by Edward Hesketh, open source at <a "
+      "href=\"https://github.com/headblockhead/"
+      "wifi-doorsign\">github:headblockhead/wifi-doorsign</a></small>");
+
+  client.print("<img width=\"600\" height=\"448\" id=\"img\" src=\"\" "
+               "alt=\"Source image\" style=\"display:none\" />");
+
   client.print("<script>");
 
   client.print("var palette = "
