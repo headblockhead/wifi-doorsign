@@ -1,19 +1,11 @@
 #include "display.h"
 #include "paint.h"
 #include "pinout.h"
+#include "wifi.h"
 #include <Arduino.h>
 #include <WiFi.h>
 
-const char *ssid = "";
-const char *password = "";
-
-IPAddress staticIP(192, 168, 1, 4);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
-IPAddress dns(192, 168, 1, 1);
-
 WiFiServer server(80); // Port 80 is the default for HTTP
-IPAddress myIP;
 
 void setup() {
   Serial.begin(115200);
@@ -33,7 +25,7 @@ void setup() {
   EPD_Init();
 
   printf("Connecting to %s", ssid);
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid, psk);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     printf(".");
@@ -198,6 +190,10 @@ void loop() {
   client.print("<h1>wifi-doorsign ");
   client.print(WiFi.localIP());
   client.print("</h1>");
+  client.print("<label for=\"input_text\">text overlay:</label>");
+  client.print("<input type=\"text\" id=\"input_text\" name=\"input_text\" "
+               "placeholder=\"S12\" />");
+  client.print("</br>");
   client.print("<input style=\"margin-bottom: 4px\"type=\"file\" "
                "id=\"input_file\" name=\"input_file\" "
                "accept=\"image/*\" />");
@@ -229,8 +225,33 @@ void loop() {
   client.print("};");
   client.print("reader.readAsDataURL(file);");
   client.print("img.onload = function() {");
-  client.print("var new_canvas = seven_color_dither(this);");
-  client.print("document.getElementById('canvas').getContext('2d').drawImage("
+  client.print("var width = 600;");
+  client.print("var height = 448;");
+  client.print("var text = document.getElementById('input_text').value;");
+
+  client.print("var canvas = document.getElementById('canvas');");
+  client.print("var ctx = canvas.getContext('2d');");
+
+  client.print("canvas.width = width;");
+  client.print("canvas.height = height;");
+
+  client.print("ctx.drawImage(img, 0, 0,width,height);");
+
+  client.print("ctx.font = '288px Ubuntu Mono';");
+  client.print("ctx.fillStyle = '#AAAAAAFF';");
+  client.print("ctx.lineWidth = 8;");
+  client.print("ctx.globalCompositeOperation = 'luminosity';");
+  client.print("ctx.fillText(text, 300 - "
+               "ctx.measureText(text).width/2"
+               ",448-144);");
+  client.print("ctx.globalCompositeOperation = 'source-over';");
+  client.print("ctx.strokeText(text, 300 - "
+               "ctx.measureText(text).width/2"
+               ",448-144);");
+
+  client.print("ctx.globalCompositeOperation = 'source-over';");
+  client.print("var new_canvas = seven_color_dither(ctx);");
+  client.print("ctx.drawImage("
                "new_canvas, 0, 0);");
   client.print("};");
   client.print("});");
@@ -304,14 +325,9 @@ void loop() {
   client.print("}");
 
   // seven_color_dither function
-  client.print("function seven_color_dither(img) {");
-  client.print("var canvas = document.createElement('canvas');");
-  client.print("var ctx = canvas.getContext('2d');");
+  client.print("function seven_color_dither(ctx) {");
   client.print("var width = 600;");
   client.print("var height = 448;");
-  client.print("canvas.width = width;");
-  client.print("canvas.height = height;");
-  client.print("ctx.drawImage(img, 0, 0,width,height);");
   client.print("var index = 0;");
   client.print("var pSrc = ctx.getImageData(0, 0, width, height);");
   client.print("var pDst = ctx.createImageData(width, height);");
