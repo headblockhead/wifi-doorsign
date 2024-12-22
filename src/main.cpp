@@ -40,69 +40,66 @@ void setup() {
   printf("Starting server\n");
   server.begin();
   printf("Server started\n");
-  if (false) {
-    // Write IP address to display
-    unsigned char *image1 = (unsigned char *)malloc(DISPLAY_WIDTH * 4 * 24 / 2);
-    Paint_NewImage(image1, DISPLAY_WIDTH, 4 * 24, 0, EPD_COLOR_WHITE);
-    Paint_Clear(EPD_COLOR_WHITE);
-    Paint_DrawString(0, 0, "Connected to:", &Font24, EPD_COLOR_WHITE,
-                     EPD_COLOR_BLACK);
-    Paint_DrawString(14 * 17, 0, ssid, &Font24, EPD_COLOR_WHITE,
-                     EPD_COLOR_BLACK);
-    Paint_DrawString(0, 24 * 1, "IP address:", &Font24, EPD_COLOR_WHITE,
-                     EPD_COLOR_BLACK);
-    Paint_DrawString(12 * 17, 24, WiFi.localIP().toString().c_str(), &Font24,
-                     EPD_COLOR_WHITE, EPD_COLOR_BLACK);
-    Paint_DrawString(0, 24 * 2, "Gateway:", &Font24, EPD_COLOR_WHITE,
-                     EPD_COLOR_BLACK);
-    Paint_DrawString(9 * 17, 48, WiFi.gatewayIP().toString().c_str(), &Font24,
-                     EPD_COLOR_WHITE, EPD_COLOR_BLACK);
-    Paint_DrawString(0, 24 * 3, "Subnet:", &Font24, EPD_COLOR_WHITE,
-                     EPD_COLOR_BLACK);
-    Paint_DrawString(8 * 17, 24 * 3, WiFi.subnetMask().toString().c_str(),
-                     &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+  // Write IP address to display
+  unsigned char *image1 = (unsigned char *)malloc(DISPLAY_WIDTH * 4 * 24 / 2);
+  Paint_NewImage(image1, DISPLAY_WIDTH, 4 * 24, 0, EPD_COLOR_WHITE);
+  Paint_Clear(EPD_COLOR_WHITE);
+  Paint_DrawString(0, 0, "Connected to:", &Font24, EPD_COLOR_WHITE,
+                   EPD_COLOR_BLACK);
+  Paint_DrawString(14 * 17, 0, ssid, &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+  Paint_DrawString(0, 24 * 1, "IP address:", &Font24, EPD_COLOR_WHITE,
+                   EPD_COLOR_BLACK);
+  Paint_DrawString(12 * 17, 24, WiFi.localIP().toString().c_str(), &Font24,
+                   EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+  Paint_DrawString(0, 24 * 2, "Gateway:", &Font24, EPD_COLOR_WHITE,
+                   EPD_COLOR_BLACK);
+  Paint_DrawString(9 * 17, 48, WiFi.gatewayIP().toString().c_str(), &Font24,
+                   EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+  Paint_DrawString(0, 24 * 3, "Subnet:", &Font24, EPD_COLOR_WHITE,
+                   EPD_COLOR_BLACK);
+  Paint_DrawString(8 * 17, 24 * 3, WiFi.subnetMask().toString().c_str(),
+                   &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
 
-    printf("Sending to EPD\n");
-    EPD_SendCommand(0x61);
-    EPD_SendData(0x02);
-    EPD_SendData(0x58);
-    EPD_SendData(0x01);
-    EPD_SendData(0xC0);
-    EPD_SendCommand(0x10);
-    for (uint32_t i = 0; i < DISPLAY_HEIGHT; i++) {
-      for (uint32_t j = 0; j < DISPLAY_WIDTH / 2; j++) {
-        if (i < 24 * 4) {
-          EPD_SendData(image1[j + i * DISPLAY_WIDTH / 2]);
-        } else {
-          // Generate color bars.
-          if (j < 50) {
-            EPD_SendData(0x00);
-          } else if (j < 100) {
-            EPD_SendData(0x22);
-          } else if (j < 150) {
-            EPD_SendData(0x33);
-          } else if (j < 200) {
-            EPD_SendData(0x44);
-          } else if (j < 250) {
-            EPD_SendData(0x55);
-          } else if (j < 300) {
-            EPD_SendData(0x66);
-          }
+  printf("Sending to EPD\n");
+  EPD_SendCommand(0x61);
+  EPD_SendData(0x02);
+  EPD_SendData(0x58);
+  EPD_SendData(0x01);
+  EPD_SendData(0xC0);
+  EPD_SendCommand(0x10);
+  for (uint32_t i = 0; i < DISPLAY_HEIGHT; i++) {
+    for (uint32_t j = 0; j < DISPLAY_WIDTH / 2; j++) {
+      if (i < 24 * 4) {
+        EPD_SendData(image1[j + i * DISPLAY_WIDTH / 2]);
+      } else {
+        // Generate color bars.
+        if (j < 50) {
+          EPD_SendData(0x00);
+        } else if (j < 100) {
+          EPD_SendData(0x22);
+        } else if (j < 150) {
+          EPD_SendData(0x33);
+        } else if (j < 200) {
+          EPD_SendData(0x44);
+        } else if (j < 250) {
+          EPD_SendData(0x55);
+        } else if (j < 300) {
+          EPD_SendData(0x66);
         }
       }
     }
-
-    printf("Displaying\n");
-    EPD_SendCommand(0x04);
-    EPD_WaitUntilBusyHigh();
-    EPD_SendCommand(0x12);
-    EPD_WaitUntilBusyHigh();
-    EPD_SendCommand(0x02);
-    EPD_WaitUntilBusyLow();
-
-    printf("Sleeping\n");
-    EPD_Sleep();
   }
+
+  printf("Displaying\n");
+  EPD_SendCommand(0x04);
+  EPD_WaitUntilBusyHigh();
+  EPD_SendCommand(0x12);
+  EPD_WaitUntilBusyHigh();
+  EPD_SendCommand(0x02);
+  EPD_WaitUntilBusyLow();
+
+  printf("Sleeping\n");
+  EPD_Sleep();
 }
 
 void loop() {
