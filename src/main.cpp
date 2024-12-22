@@ -347,28 +347,28 @@ void loop() {
   client.print("ctx.fillText(text, 300 - "
                "ctx.measureText(text).width/2"
                ",448-144);");
-  client.print("ctx.font = '72px Ubuntu Mono';");
+  client.print("ctx.font = '50px Ubuntu Mono';");
   client.print("ctx.lineWidth = 2;");
   client.print("ctx.fillText(top_text, 300 - "
                "ctx.measureText(top_text).width/2"
-               ",72);");
+               ",75);");
   client.print("ctx.fillText(bottom_text, 300 - "
                "ctx.measureText(bottom_text).width/2"
-               ",448-36);");
+               ",448-50);");
   client.print("ctx.globalCompositeOperation = 'source-over';");
   client.print("ctx.font = '288px Ubuntu Mono';");
   client.print("ctx.lineWidth = 8;");
   client.print("ctx.strokeText(text, 300 - "
                "ctx.measureText(text).width/2"
                ",448-144);");
-  client.print("ctx.font = '72px Ubuntu Mono';");
+  client.print("ctx.font = '50px Ubuntu Mono';");
   client.print("ctx.lineWidth = 2;");
   client.print("ctx.strokeText(top_text, 300 - "
                "ctx.measureText(top_text).width/2"
-               ",72);");
+               ",75);");
   client.print("ctx.strokeText(bottom_text, 300 - "
                "ctx.measureText(bottom_text).width/2"
-               ",448-36);");
+               ",448-50);");
   client.print("var new_canvas = seven_color_dither(ctx);");
   client.print("ctx.drawImage(new_canvas, 0, 0);");
   client.print("}");

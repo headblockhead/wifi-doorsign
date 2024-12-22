@@ -11,3 +11,11 @@ Upload the firmware to the ESP32 board.
 ```bash
 pio run -e esp32dev --target upload
 ```
+
+### Monitor
+
+Monitor the serial output of the ESP32 board.
+
+```bash
+pio device monitor
+```
