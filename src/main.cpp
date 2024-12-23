@@ -51,6 +51,7 @@ void setup() {
 
   // Create a new image with a white background.
   Paint_NewImage(infoTextImage, DISPLAY_WIDTH, 4 * 24, 0, EPD_COLOR_WHITE);
+  Paint_Clear(EPD_COLOR_WHITE);
 
   // Characters are 17 pixels wide, lines are 24 pixels tall.
   Paint_DrawString(0, 0, "Connected to:", &Font24, EPD_COLOR_WHITE,
@@ -215,6 +216,7 @@ void loop() {
     client.stop();
 
     // Display the image in framebuffer.
+    // This takes a while, server will be unresponsive.
     EPD_WaitUntilBusyHigh();
     EPD_SendCommand(0x04);
     EPD_WaitUntilBusyHigh();
@@ -244,10 +246,9 @@ void loop() {
   // interacting with.
   client.print(WiFi.localIP());
   client.print("</h1>");
-  // --- Identify button (writes IP to screen)
-  client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
-  client.print("<button style=\"width:600px;\" "
-               "id=\"identify_button\">Identify</button>");
+  client.print("<small>Can't find which display you're talking to? <a "
+               "id=\"identify_button\" href=\"#\">"
+               "Identify.</a></small>");
   client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
   // --- Text fill color input (number and range)
   client.print("<div style=\"width: 600px; display: flex; flex-direction: "
@@ -362,6 +363,25 @@ void loop() {
   client.print(
       "document.getElementById('identify_button').addEventListener('click', "
       "function() {");
+  client.print("var canvas = document.getElementById('canvas');");
+  client.print("var ctx = canvas.getContext('2d');");
+  client.print("canvas.width = 600;");
+  client.print("canvas.height = 448;");
+  client.print("ctx.font = '48px Ubuntu Mono';");
+  client.print("ctx.fillStyle = '#ffffff';");
+  client.print("ctx.strokeStyle = '#000000';");
+  client.print("ctx.fillText('");
+  client.print(WiFi.localIP());
+  client.print("', 300 - ctx.measureText('");
+  client.print(WiFi.localIP());
+  client.print("').width/2,448-48);");
+  client.print("ctx.font = '256px Ubuntu Mono';");
+  client.print("ctx.fillText('IDENT', 300 - ctx.measureText('IDENT').width/2,"
+               "448-192);");
+  client.print("var new_canvas = seven_color_dither(ctx);");
+  client.print("ctx.drawImage(new_canvas, 0, 0);");
+  client.print(
+      "document.getElementById('push_button').focus({focusVisible: true});");
   client.print("});");
 
   // Update the image live as changes are made to the various text fields.
@@ -544,6 +564,8 @@ void loop() {
   client.print("document.getElementById('progress').value = 100;");
   client.print(
       "document.getElementById('progress').style.accentColor = \"green\";");
+  client.print("updateImage(document.getElementById('img'));");
+  client.print("document.getElementById('push_button').blur();");
   client.print("};");
 
   // Send the POST request with the image data!
