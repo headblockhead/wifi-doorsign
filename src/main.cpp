@@ -1,4 +1,4 @@
-// Having issues here? See wifi_example.h!
+// Having issues compiling? See wifi_example.h!
 #include "wifi.h"
 
 #include "display.h"
@@ -11,7 +11,6 @@ WiFiServer server(80); // Port 80 is the default for HTTP
 
 void setup() {
   Serial.begin(115200);
-  printf("Starting...\n");
 
   printf("Setting up SPI\n");
   pinMode(PIN_SPI_BUSY, INPUT);
@@ -40,10 +39,20 @@ void setup() {
   printf("Starting server\n");
   server.begin();
   printf("Server started\n");
-  // Write IP address to display
-  unsigned char *image1 = (unsigned char *)malloc(DISPLAY_WIDTH * 4 * 24 / 2);
-  Paint_NewImage(image1, DISPLAY_WIDTH, 4 * 24, 0, EPD_COLOR_WHITE);
-  Paint_Clear(EPD_COLOR_WHITE);
+
+  // Write IP address to display.
+
+  // We don't have enough continuous memory to store the whole display buffer,
+  // so we only store 4 lines of text. (24 pixels/line)
+
+  // Each pixel takes up 4 bits - so we divide by 2.
+  unsigned char *infoTextImage =
+      (unsigned char *)malloc(DISPLAY_WIDTH * 4 * 24 / 2);
+
+  // Create a new image with a white background.
+  Paint_NewImage(infoTextImage, DISPLAY_WIDTH, 4 * 24, 0, EPD_COLOR_WHITE);
+
+  // Characters are 17 pixels wide, lines are 24 pixels tall.
   Paint_DrawString(0, 0, "Connected to:", &Font24, EPD_COLOR_WHITE,
                    EPD_COLOR_BLACK);
   Paint_DrawString(14 * 17, 0, ssid, &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
@@ -61,20 +70,29 @@ void setup() {
                    &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
 
   printf("Sending to EPD\n");
+
+  // Prepare the display for receiving data.
+  // These commands are listed as necessary in the datasheet, with no
+  // explanation, but they work!
   EPD_SendCommand(0x61);
   EPD_SendData(0x02);
   EPD_SendData(0x58);
   EPD_SendData(0x01);
   EPD_SendData(0xC0);
   EPD_SendCommand(0x10);
+
+  // Pixels are stored in 4-bit format, with the top 4 bits being the left pixel
+  // and the bottom 4 bits being the right pixel.
   for (uint32_t i = 0; i < DISPLAY_HEIGHT; i++) {
     for (uint32_t j = 0; j < DISPLAY_WIDTH / 2; j++) {
       if (i < 24 * 4) {
-        EPD_SendData(image1[j + i * DISPLAY_WIDTH / 2]);
+        // If we are within the image buffer, send it's data.
+        EPD_SendData(infoTextImage[j + i * DISPLAY_WIDTH / 2]);
       } else {
-        // Generate color bars.
+        // Generate color bars. Each bar is 100 pixels wide (50 bytes).
+        // See display.h for color definitions.
         if (j < 50) {
-          EPD_SendData(0x00);
+          EPD_SendData(0x00); // Two black pixels. (0000 and 0000)
         } else if (j < 100) {
           EPD_SendData(0x22);
         } else if (j < 150) {
@@ -91,6 +109,8 @@ void setup() {
   }
 
   printf("Displaying\n");
+  // Another case of necessary-but-unexplained commands.
+  // This takes a *long* time as we wait for the whole display to update here.
   EPD_SendCommand(0x04);
   EPD_WaitUntilBusyHigh();
   EPD_SendCommand(0x12);
@@ -98,19 +118,27 @@ void setup() {
   EPD_SendCommand(0x02);
   EPD_WaitUntilBusyLow();
 
+  // Sleep the display to save power.
   printf("Sleeping\n");
   EPD_Sleep();
+
+  // Free the image buffer.
+  free(infoTextImage);
+  infoTextImage = NULL;
 }
 
+// Run the web server.
 void loop() {
   WiFiClient client = server.available();
   if (!client) {
+    // No client connected, check again.
     return;
   }
-  printf("New client!\n");
+  printf("New client connected!\n");
+
+  printf("Waiting for client request");
   int timeout_max = 1000;
   int timeout = 0;
-  printf("Waiting for client data");
   while (!client.available()) {
     delay(1);
     printf(".");
@@ -120,57 +148,73 @@ void loop() {
       return;
     }
   }
-  printf("\nReciving data:\n");
+
+  printf("\nReading client request: ");
+
+  bool isPost = false;
+  bool isGet = false;
+  bool headersComplete = false;
+  int consecutiveNewlines = 0;
   int i = 0;
-  bool post = 0;
-  bool get = 0;
-  bool dataStart = false;
-  int newline_count = 0;
+
+  // While there is data available, read it.
   while (client.available()) {
+    // Read one byte at a time.
     char c = client.read();
 
+    // If the first character is a P, assume it's a POST request.
     if (i == 0 && c == 'P') {
       printf("POST\n");
-      post = true;
+      isPost = true;
     }
-    if (i == 1 && c == 'U') {
-      printf("NOT POST\n");
-      post = false;
-    }
+
+    // If the first character is a G, assume it's a GET request.
     if (i == 0 && c == 'G') {
       printf("GET\n");
-      get = true;
+      isGet = true;
     }
 
+    // Headers end with two newlines (\r\n\r\n).
     if (c == '\n' || c == '\r') {
-      newline_count++;
-    } else if (newline_count < 4) {
-      newline_count = 0;
+      consecutiveNewlines++;
+    } else {
+      consecutiveNewlines = 0;
     }
 
-    if (newline_count == 4 && post && !dataStart) {
-      printf("End of headers\n");
-      dataStart = true;
-      EPD_Init();
-      EPD_SendCommand(0x61);
-      EPD_SendData(0x02);
-      EPD_SendData(0x58);
-      EPD_SendData(0x01);
-      EPD_SendData(0xC0);
-      EPD_SendCommand(0x10);
+    if (consecutiveNewlines == 4 && !headersComplete) {
+      headersComplete = true;
+      // POST requests are sending us display bytes, so we need to prepare the
+      // display.
+      if (isPost) {
+        EPD_Init();
+        EPD_SendCommand(0x61);
+        EPD_SendData(0x02);
+        EPD_SendData(0x58);
+        EPD_SendData(0x01);
+        EPD_SendData(0xC0);
+        EPD_SendCommand(0x10);
+      }
+      // GET requests aren't sending us data after the headers, so we don't need
+      // to do anything here.
     }
-    if (dataStart) {
+
+    if (headersComplete && isPost) {
+      // Stream data to the display's framebuffer.
       EPD_SendData(c);
     }
+
+    // Increment the character index.
     i++;
   }
 
-  printf("\n");
-  printf("Sending response\n");
+  printf("Sending response.\n");
 
-  if (post) {
+  if (isPost) {
+    // End response with a 200 OK.
     client.print("HTTP/1.1 200 OK\nContent-Type: text/html\n\n");
     client.stop();
+
+    // Display the image in framebuffer.
     EPD_WaitUntilBusyHigh();
     EPD_SendCommand(0x04);
     EPD_WaitUntilBusyHigh();
@@ -178,18 +222,34 @@ void loop() {
     EPD_WaitUntilBusyHigh();
     EPD_SendCommand(0x02);
     EPD_WaitUntilBusyLow();
-    printf("Done\n");
+
+    // Nothing else to do, so return.
     return;
   }
 
+  // GET request, send the HTML page.
+
+  // Respond with 200 OK and HTML content type.
   client.print("HTTP/1.1 200 OK\nContent-Type: text/html\n\n");
+
+  // Good luck reading this HTML and JS in C++, it's the best I could do!
+
+  // DOCTYPE and head.
   client.print(
       "<!DOCTYPE html><html><head><title>wifi-doorsign</title></head>");
+
   client.print("<body>");
   client.print("<h1>wifi-doorsign ");
+  // Add our IP to the title, to make it very obvious which device we're
+  // interacting with.
   client.print(WiFi.localIP());
   client.print("</h1>");
+  // --- Identify button (writes IP to screen)
   client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
+  client.print("<button style=\"width:600px;\" "
+               "id=\"identify_button\">Identify</button>");
+  client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
+  // --- Text fill color input (number and range)
   client.print("<div style=\"width: 600px; display: flex; flex-direction: "
                "row; gap: 2px;\">");
   client.print("<label for=\"text_fill_number\">Text fill color: </label>");
@@ -201,7 +261,7 @@ void loop() {
   client.print("min=\"0\" max=\"255\" step=\"1\" value=\"170\" "
                "style=\"flex-grow:1;\"/>");
   client.print("</div>");
-
+  // --- Text outline color input (number and range)
   client.print("<div style=\"width: 600px; display: flex; flex-direction: "
                "row; gap: 2px;\">");
   client.print(
@@ -214,8 +274,8 @@ void loop() {
   client.print("min=\"0\" max=\"255\" step=\"1\" value=\"0\" "
                "style=\"flex-grow:1;\"/>");
   client.print("</div>");
-
   client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
+  // --- Text input fields
   client.print("<div style=\"width: 600px; display: flex; flex-direction: "
                "column; gap: 2px;\">");
   client.print("<label for=\"input_text_top\">Class/Course: </label>");
@@ -231,17 +291,21 @@ void loop() {
                "placeholder=\"13:45-14:35\" />");
   client.print("</div>");
   client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
+  // --- File selection button
   client.print("<div style=\"width: 600px; display: flex; flex-direction: "
                "row;\">");
   client.print("<input style=\"margin-bottom: 4px\"type=\"file\" "
                "id=\"input_file\" name=\"input_file\" "
                "accept=\"image/*\" />");
+  // --- Display resolution reminder
   client.print("<small style=\"text-align: right; flex-grow:1; align-content: "
                "end; padding-bottom:2px;"
                "\">600x448px</small>");
   client.print("</div>");
+  // --- The Mighty Canvas, Storer of Image Data.
   client.print("<canvas id=\"canvas\" width=\"600\" height=\"448\" "
                "style=\"outline: black 1px solid\"></canvas>");
+  // --- Button to send canvas image to display, and progress bar.
   client.print("<div style=\"width: 600px; display: flex;\">");
   client.print("<button style=\"margin-right: 7px\" id=\"push_button\">Push to "
                "screen</button>");
@@ -249,39 +313,58 @@ void loop() {
                "max=\"100\"></progress>");
   client.print("</div>");
   client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
+  // --- Footer
   client.print(
       "<small>Built by Edward Hesketh, open source at <a "
       "href=\"https://github.com/headblockhead/"
       "wifi-doorsign\">github:headblockhead/wifi-doorsign</a></small>");
 
+  // This img tag is hidden, and stores the original selected image as
+  // reference.
   client.print("<img width=\"600\" height=\"448\" id=\"img\" src=\"\" "
                "alt=\"Source image\" style=\"display:none\" />");
 
+  // JS time!
   client.print("<script>");
 
+  // Define the RGB values of the colors used in the display.
   client.print("var palette = "
                "[[0,0,0],[255,255,255],[0,255,0],[0,0,255],[255,0,0],[255,255,"
                "0],[255,128,0]];");
 
-  // set input listener
+  // When a file is selected,
   client.print("document.getElementById('input_file').addEventListener('change'"
                ", function(e) {");
   client.print("var file = e.target.files[0];");
   client.print("var reader = new FileReader();");
   client.print("reader.onload = function(e) {");
+  // Set the invisible image's source to the selected file.
   client.print("document.getElementById('img').src = e.target.result;");
   client.print("};");
   client.print("reader.readAsDataURL(file);");
   client.print("img.onload = function() {");
+  // When the image is loaded, update the canvas.
   client.print("updateImage(img);");
   client.print("};");
   client.print("});");
 
+  // Assign actions to the buttons.
+
+  // This button sends the image to the display.
   client.print(
       "document.getElementById('push_button').addEventListener('click', "
       "function() {");
   client.print("pushImage(document.getElementById('canvas'));");
   client.print("});");
+
+  // This button draws the IP of the display on the canvas very large, then
+  // sends that image to the display.
+  client.print(
+      "document.getElementById('identify_button').addEventListener('click', "
+      "function() {");
+  client.print("});");
+
+  // Update the image live as changes are made to the various text fields.
 
   client.print(
       "document.getElementById('input_title').addEventListener('input', "
@@ -298,6 +381,9 @@ void loop() {
       "function() {");
   client.print("updateImage(document.getElementById('img'));");
   client.print("});");
+
+  // Match the number input to the range input, and vice versa.
+  // Also, update the image when the value changes.
 
   client.print(
       "document.getElementById('text_fill_number').addEventListener('input'"
@@ -331,6 +417,7 @@ void loop() {
   client.print("updateImage(document.getElementById('img'));");
   client.print("});");
 
+  // updateImage draws the canvas image from the source image, adding text.
   client.print("function updateImage(img) {");
   client.print("var width = 600;");
   client.print("var height = 448;");
@@ -339,39 +426,58 @@ void loop() {
       "var top_text = document.getElementById('input_text_top').value;");
   client.print(
       "var bottom_text = document.getElementById('input_text_bottom').value;");
-  client.print("var canvas = document.getElementById('canvas');");
-  client.print("var ctx = canvas.getContext('2d');");
-  client.print("canvas.width = width;");
-  client.print("canvas.height = height;");
-  client.print("ctx.drawImage(img, 0, 0,width,height);");
-  client.print("ctx.font = '288px Ubuntu Mono';");
   client.print("var textBrightness = "
                "document.getElementById('text_fill_number').valueAsNumber;");
   client.print("var outlineBrightness = "
                "document.getElementById('text_outline_number').valueAsNumber;");
+  client.print("var canvas = document.getElementById('canvas');");
+  client.print("var ctx = canvas.getContext('2d');");
+  client.print("canvas.width = width;");
+  client.print("canvas.height = height;");
+
+  // Draw the source image on the canvas, stretching/squeezing to fit if needed.
+  client.print("ctx.drawImage(img, 0, 0,width,height);");
+
+  // Set the font to draw the text with.
+  client.print("ctx.font = '288px Ubuntu Mono';");
+
+  // Set the fill and stroke colors for the text.
   client.print("ctx.fillStyle = "
                "\"#\" + textBrightness.toString(16).repeat(3) + \"ff\";");
   client.print("ctx.strokeStyle = "
                "\"#\" + outlineBrightness.toString(16).repeat(3) + \"ff\";");
-  client.print("ctx.lineWidth = 8;");
+
+  // When drawing the fill, preserve the hue and chroma of the bottom layer,
+  // while adopting the luma of the top layer.
   client.print("ctx.globalCompositeOperation = 'luminosity';");
+
+  // Draw the title text's fill.
   client.print("ctx.fillText(text, 300 - "
                "ctx.measureText(text).width/2"
                ",448-144);");
+
+  // Set the font for the top and bottom text.
   client.print("ctx.font = '50px Ubuntu Mono';");
-  client.print("ctx.lineWidth = 2;");
+
+  // Draw the top and bottom texts' fill.
   client.print("ctx.fillText(top_text, 300 - "
                "ctx.measureText(top_text).width/2"
                ",75);");
   client.print("ctx.fillText(bottom_text, 300 - "
                "ctx.measureText(bottom_text).width/2"
                ",448-50);");
+
+  // When drawing the outline, replace pixels beneath.
   client.print("ctx.globalCompositeOperation = 'source-over';");
+
+  // Draw the title text's outline.
   client.print("ctx.font = '288px Ubuntu Mono';");
   client.print("ctx.lineWidth = 8;");
   client.print("ctx.strokeText(text, 300 - "
                "ctx.measureText(text).width/2"
                ",448-144);");
+
+  // Draw the top and bottom texts' outline.
   client.print("ctx.font = '50px Ubuntu Mono';");
   client.print("ctx.lineWidth = 2;");
   client.print("ctx.strokeText(top_text, 300 - "
@@ -380,57 +486,74 @@ void loop() {
   client.print("ctx.strokeText(bottom_text, 300 - "
                "ctx.measureText(bottom_text).width/2"
                ",448-50);");
+
+  // Dither the canvas image, then replace the current image with the dithered
+  // version.
   client.print("var new_canvas = seven_color_dither(ctx);");
   client.print("ctx.drawImage(new_canvas, 0, 0);");
   client.print("}");
 
-  // push image to device function
+  // pushImage converts the canvas contents into bytes, that are then sent to
+  // the display.
   client.print("function pushImage(canvas) {");
   client.print("var ctx = canvas.getContext('2d');");
-  client.print("var imgData = ctx.getImageData(0, 0, 600, 448);");
-  client.print("var data = imgData.data;");
+  // Get image data as RGBA bytes.
+  client.print("var data = ctx.getImageData(0, 0, 600, 448).data;");
+  // Store the image data in a string, with each byte representing two pixels.
   client.print("var textify = '';");
+
   client.print("for (var i = 0; i < data.length; i += 8) {");
   client.print("var cha = 0x00;");
+
   client.print("var r1 = data[i];");
   client.print("var g1 = data[i + 1];");
   client.print("var b1 = data[i + 2];");
   client.print("var ind1 = getNear(r1,g1,b1);");
   client.print("cha |= ind1 << 4;");
+
   client.print("var r2 = data[i + 4];");
   client.print("var g2 = data[i + 5];");
   client.print("var b2 = data[i + 6];");
   client.print("var ind2 = getNear(r2,g2,b2);");
   client.print("cha |= ind2;");
+
   client.print("textify += String.fromCharCode(cha);");
   client.print("}");
+
+  // Prepare a POST request to /image.
   client.print("var xhr = new XMLHttpRequest();");
   client.print("xhr.open('POST', '/image', true);");
   client.print("xhr.setRequestHeader('Content-Type', 'application/octet-"
                "stream');");
+
+  // Set the progress bar to 0, and the color to the default.
   client.print("document.getElementById('progress').value = 0;");
   client.print("document.getElementById('progress').style.accentColor = "
                "\"auto\";");
+
+  // When the upload progress changes, update the progress bar.
   client.print("xhr.upload.onprogress = function(e) {");
   client.print("if (e.lengthComputable) {");
   client.print("var percentComplete = (e.loaded / e.total) * 100;");
   client.print("document.getElementById('progress').value = percentComplete;");
   client.print("}");
   client.print("};");
+
+  // When uploading finishes, set the progress bar's color to green.
   client.print("xhr.onload = function() {");
   client.print("document.getElementById('progress').value = 100;");
   client.print(
       "document.getElementById('progress').style.accentColor = \"green\";");
   client.print("};");
+
+  // Send the POST request with the image data!
   client.print("xhr.send(textify);");
   client.print("}");
 
-  // addVal function
+  // A few helper functions provided helpfully by Waveshare.
   client.print("function addVal(c,r,g,b,k){");
   client.print("return[c[0]+(r*k)/32,c[1]+(g*k)/32,c[2]+(b*k)/32];");
   client.print("}");
-
-  // getNear function
   client.print("function getNear(r,g,b) {");
   client.print("var ind= 0;");
   client.print("var err= 1000000;");
@@ -446,7 +569,7 @@ void loop() {
   client.print("return ind;");
   client.print("}");
 
-  // seven_color_dither function
+  // seven_color_dither function, provided by Waveshare, and simplified by me.
   client.print("function seven_color_dither(ctx) {");
   client.print("var width = 600;");
   client.print("var height = 448;");
@@ -499,6 +622,12 @@ void loop() {
   client.print("return canvas;");
   client.print("}");
   client.print("</script>");
+
+  // Close the HTML tags.
   client.print("</body></html>");
+
+  // It's *finally* over, close the connection.
   client.stop();
+
+  // We're done here.
 }
