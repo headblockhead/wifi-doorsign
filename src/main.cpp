@@ -39,93 +39,95 @@ void setup() {
   printf("Starting server\n");
   server.begin();
   printf("Server started\n");
+  if (false) {
+    // Write IP address to display.
 
-  // Write IP address to display.
+    // We don't have enough continuous memory to store the whole display buffer,
+    // so we only store 4 lines of text. (24 pixels/line)
 
-  // We don't have enough continuous memory to store the whole display buffer,
-  // so we only store 4 lines of text. (24 pixels/line)
+    // Each pixel takes up 4 bits - so we divide by 2.
+    unsigned char *infoTextImage =
+        (unsigned char *)malloc(DISPLAY_WIDTH * 4 * 24 / 2);
 
-  // Each pixel takes up 4 bits - so we divide by 2.
-  unsigned char *infoTextImage =
-      (unsigned char *)malloc(DISPLAY_WIDTH * 4 * 24 / 2);
+    // Create a new image with a white background.
+    Paint_NewImage(infoTextImage, DISPLAY_WIDTH, 4 * 24, 0, EPD_COLOR_WHITE);
+    Paint_Clear(EPD_COLOR_WHITE);
 
-  // Create a new image with a white background.
-  Paint_NewImage(infoTextImage, DISPLAY_WIDTH, 4 * 24, 0, EPD_COLOR_WHITE);
-  Paint_Clear(EPD_COLOR_WHITE);
+    // Characters are 17 pixels wide, lines are 24 pixels tall.
+    Paint_DrawString(0, 0, "Connected to:", &Font24, EPD_COLOR_WHITE,
+                     EPD_COLOR_BLACK);
+    Paint_DrawString(14 * 17, 0, ssid, &Font24, EPD_COLOR_WHITE,
+                     EPD_COLOR_BLACK);
+    Paint_DrawString(0, 24 * 1, "IP address:", &Font24, EPD_COLOR_WHITE,
+                     EPD_COLOR_BLACK);
+    Paint_DrawString(12 * 17, 24, WiFi.localIP().toString().c_str(), &Font24,
+                     EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+    Paint_DrawString(0, 24 * 2, "Gateway:", &Font24, EPD_COLOR_WHITE,
+                     EPD_COLOR_BLACK);
+    Paint_DrawString(9 * 17, 48, WiFi.gatewayIP().toString().c_str(), &Font24,
+                     EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+    Paint_DrawString(0, 24 * 3, "Subnet:", &Font24, EPD_COLOR_WHITE,
+                     EPD_COLOR_BLACK);
+    Paint_DrawString(8 * 17, 24 * 3, WiFi.subnetMask().toString().c_str(),
+                     &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
 
-  // Characters are 17 pixels wide, lines are 24 pixels tall.
-  Paint_DrawString(0, 0, "Connected to:", &Font24, EPD_COLOR_WHITE,
-                   EPD_COLOR_BLACK);
-  Paint_DrawString(14 * 17, 0, ssid, &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
-  Paint_DrawString(0, 24 * 1, "IP address:", &Font24, EPD_COLOR_WHITE,
-                   EPD_COLOR_BLACK);
-  Paint_DrawString(12 * 17, 24, WiFi.localIP().toString().c_str(), &Font24,
-                   EPD_COLOR_WHITE, EPD_COLOR_BLACK);
-  Paint_DrawString(0, 24 * 2, "Gateway:", &Font24, EPD_COLOR_WHITE,
-                   EPD_COLOR_BLACK);
-  Paint_DrawString(9 * 17, 48, WiFi.gatewayIP().toString().c_str(), &Font24,
-                   EPD_COLOR_WHITE, EPD_COLOR_BLACK);
-  Paint_DrawString(0, 24 * 3, "Subnet:", &Font24, EPD_COLOR_WHITE,
-                   EPD_COLOR_BLACK);
-  Paint_DrawString(8 * 17, 24 * 3, WiFi.subnetMask().toString().c_str(),
-                   &Font24, EPD_COLOR_WHITE, EPD_COLOR_BLACK);
+    printf("Sending to EPD\n");
 
-  printf("Sending to EPD\n");
+    // Prepare the display for receiving data.
+    // These commands are listed as necessary in the datasheet, with no
+    // explanation, but they work!
+    EPD_SendCommand(0x61);
+    EPD_SendData(0x02);
+    EPD_SendData(0x58);
+    EPD_SendData(0x01);
+    EPD_SendData(0xC0);
+    EPD_SendCommand(0x10);
 
-  // Prepare the display for receiving data.
-  // These commands are listed as necessary in the datasheet, with no
-  // explanation, but they work!
-  EPD_SendCommand(0x61);
-  EPD_SendData(0x02);
-  EPD_SendData(0x58);
-  EPD_SendData(0x01);
-  EPD_SendData(0xC0);
-  EPD_SendCommand(0x10);
-
-  // Pixels are stored in 4-bit format, with the top 4 bits being the left pixel
-  // and the bottom 4 bits being the right pixel.
-  for (uint32_t i = 0; i < DISPLAY_HEIGHT; i++) {
-    for (uint32_t j = 0; j < DISPLAY_WIDTH / 2; j++) {
-      if (i < 24 * 4) {
-        // If we are within the image buffer, send it's data.
-        EPD_SendData(infoTextImage[j + i * DISPLAY_WIDTH / 2]);
-      } else {
-        // Generate color bars. Each bar is 100 pixels wide (50 bytes).
-        // See display.h for color definitions.
-        if (j < 50) {
-          EPD_SendData(0x00); // Two black pixels. (0000 and 0000)
-        } else if (j < 100) {
-          EPD_SendData(0x22);
-        } else if (j < 150) {
-          EPD_SendData(0x33);
-        } else if (j < 200) {
-          EPD_SendData(0x44);
-        } else if (j < 250) {
-          EPD_SendData(0x55);
-        } else if (j < 300) {
-          EPD_SendData(0x66);
+    // Pixels are stored in 4-bit format, with the top 4 bits being the left
+    // pixel and the bottom 4 bits being the right pixel.
+    for (uint32_t i = 0; i < DISPLAY_HEIGHT; i++) {
+      for (uint32_t j = 0; j < DISPLAY_WIDTH / 2; j++) {
+        if (i < 24 * 4) {
+          // If we are within the image buffer, send it's data.
+          EPD_SendData(infoTextImage[j + i * DISPLAY_WIDTH / 2]);
+        } else {
+          // Generate color bars. Each bar is 100 pixels wide (50 bytes).
+          // See display.h for color definitions.
+          if (j < 50) {
+            EPD_SendData(0x00); // Two black pixels. (0000 and 0000)
+          } else if (j < 100) {
+            EPD_SendData(0x22);
+          } else if (j < 150) {
+            EPD_SendData(0x33);
+          } else if (j < 200) {
+            EPD_SendData(0x44);
+          } else if (j < 250) {
+            EPD_SendData(0x55);
+          } else if (j < 300) {
+            EPD_SendData(0x66);
+          }
         }
       }
     }
+
+    printf("Displaying\n");
+    // Another case of necessary-but-unexplained commands.
+    // This takes a *long* time as we wait for the whole display to update here.
+    EPD_SendCommand(0x04);
+    EPD_WaitUntilBusyHigh();
+    EPD_SendCommand(0x12);
+    EPD_WaitUntilBusyHigh();
+    EPD_SendCommand(0x02);
+    EPD_WaitUntilBusyLow();
+
+    // Sleep the display to save power.
+    printf("Sleeping\n");
+    EPD_Sleep();
+
+    // Free the image buffer.
+    free(infoTextImage);
+    infoTextImage = NULL;
   }
-
-  printf("Displaying\n");
-  // Another case of necessary-but-unexplained commands.
-  // This takes a *long* time as we wait for the whole display to update here.
-  EPD_SendCommand(0x04);
-  EPD_WaitUntilBusyHigh();
-  EPD_SendCommand(0x12);
-  EPD_WaitUntilBusyHigh();
-  EPD_SendCommand(0x02);
-  EPD_WaitUntilBusyLow();
-
-  // Sleep the display to save power.
-  printf("Sleeping\n");
-  EPD_Sleep();
-
-  // Free the image buffer.
-  free(infoTextImage);
-  infoTextImage = NULL;
 }
 
 // Run the web server.
@@ -293,6 +295,14 @@ void loop() {
                "placeholder=\"13:45-14:35\" />");
   client.print("</div>");
   client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
+  // --- Color selection button
+  client.print("<div style=\"width: 600px; display: flex; flex-direction: "
+               "row; align-items: center;\">");
+  client.print("<label for=\"input_color\">Background color: </label>");
+  client.print("<input type=\"color\" id=\"input_color\" name=\"input_color\" "
+               "value=\"#ffffff\" style=\"flex-grow:1;margin-left:10px;\" />");
+  client.print("</div>");
+  client.print("<hr style=\"width:600px; margin-left:0px;\"/>");
   // --- File selection button
   client.print("<div style=\"width: 600px; display: flex; flex-direction: "
                "row;\">");
@@ -403,6 +413,13 @@ void loop() {
   client.print("updateImage(document.getElementById('img'));");
   client.print("});");
 
+  // Update the image when the color input changes.
+  client.print(
+      "document.getElementById('input_color').addEventListener('input', "
+      "function() {");
+  client.print("updateImage(document.getElementById('img'));");
+  client.print("});");
+
   // Match the number input to the range input, and vice versa.
   // Also, update the image when the value changes.
 
@@ -455,6 +472,10 @@ void loop() {
   client.print("var ctx = canvas.getContext('2d');");
   client.print("canvas.width = width;");
   client.print("canvas.height = height;");
+
+  // Fill the canvas with the background color.
+  client.print("ctx.fillStyle = document.getElementById('input_color').value;");
+  client.print("ctx.fillRect(0, 0, width, height);");
 
   // Draw the source image on the canvas, stretching/squeezing to fit if needed.
   client.print("ctx.drawImage(img, 0, 0,width,height);");
