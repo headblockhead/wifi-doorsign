@@ -237,8 +237,9 @@ void loop() {
   // Good luck reading this HTML and JS in C++, it's the best I could do!
 
   // DOCTYPE and head.
-  client.print(
-      "<!DOCTYPE html><html><head><title>wifi-doorsign</title></head>");
+  client.print("<!DOCTYPE html><html><head><title>wifi-doorsign</title><meta "
+               "name=\"viewport\" content=\"width=device-width, "
+               "initial-scale=1.0\"></head>");
 
   client.print("<body>");
   client.print("<h1>wifi-doorsign ");
