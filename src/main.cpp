@@ -39,7 +39,7 @@ void setup() {
   printf("Starting server\n");
   server.begin();
   printf("Server started\n");
-  if (false) {
+  if (true) {
     // Write IP address to display.
 
     // We don't have enough continuous memory to store the whole display buffer,
