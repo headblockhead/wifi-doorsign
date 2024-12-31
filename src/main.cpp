@@ -239,13 +239,15 @@ void loop() {
 
   // GET request, send the HTML page.
 
+  String content = "";
+
   // Respond with 200 OK and HTML content type.
-  client.print("HTTP/1.1 200 OK\nContent-Type: text/html\n\n");
+  content += "HTTP/1.1 200 OK\nContent-Type: text/html\r\n\r\n";
 
   // Good luck reading this HTML and JS in C++, it's the best I could do!
 
   // DOCTYPE and head.
-  client.print(
+  content +=
       "<!DOCTYPE html><html><head><title>wifi-doorsign</title><meta "
       "name=\"viewport\" content=\"width=device-width, "
       "initial-scale=1.0\">"
@@ -256,478 +258,471 @@ void loop() {
       "css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&"
       "family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap\" "
       "rel=\"stylesheet\">"
-      "</head>");
-  client.print(
+      "</head>"
       "<body style=\"display:flex; justify-content:center; font-family:"
       " 'Inter', sans-serif; background-color: Canvas; color: CanvasText; "
-      "color-scheme: light dark;\">");
-  client.print("<style>");
-  // client.print("a { color: #62a0ea; }");
-  // client.print("a:hover { color: #99c1f1; }");
-  client.print("</style>");
-  client.print("<div style=\"max-width:1000px; min-width: 300px;\">");
-  client.print("<h1 style=\"text-align:center;\">wifi-doorsign ");
+      "color-scheme: light dark;\">"
+      "<style>"
+      // "a { color: #62a0ea; }";
+      // "a:hover { color: #99c1f1; }";
+      "</style>"
+      "<div style=\"max-width:1000px; min-width: 300px;\">"
+      "<h1 style=\"text-align:center;\">wifi-doorsign ";
   // Add our IP to the title, to make it very obvious which device we're
   // interacting with.
-  client.print(WiFi.localIP());
-  client.print("</h1>");
-  client.print("<small>Can't find which display you're talking to? <a "
-               "id=\"identify_button\" href=\"#\">"
-               "Identify.</a></small>");
-  client.print("<hr style=\"margin-left:0px;\"/>");
-  // --- Text fill color input (number and range)
-  client.print("<form style=\"display: flex; flex-direction: "
-               "column; gap: 4px;\">");
-  client.print("<div style=\"display: flex; flex-direction: "
-               "row; gap: 2px;\">");
-  client.print("<label for=\"text_fill_number\" style=\"align-content: "
-               "center;width: 150px;\">Text fill color: </label>");
-  client.print("<input type=\"number\" id=\"text_fill_number\" "
-               "name=\"text_fill_number\" "
-               "placeholder=\"170\" value=\"170\" min=\"0\" max=\"255\"/>");
-  client.print(
-      "<input type=\"range\" id=\"text_fill_range\" name=\"text_fill_range\" ");
-  client.print("min=\"0\" max=\"255\" step=\"1\" value=\"170\" "
-               "style=\"flex-grow:1;\"/>");
-  client.print("</div>");
-  // --- Text outline color input (number and range)
-  client.print("<div style=\"display: flex; flex-direction: "
-               "row; gap: 2px;\">");
-  client.print("<label for=\"text_outline_number\" style=\"align-content: "
-               "center; width: 150px;\">Text outline color: </label>");
-  client.print("<input type=\"number\" id=\"text_outline_number\" "
-               "name=\"text_outline_number\" "
-               "placeholder=\"170\" value=\"0\" min=\"0\" max=\"255\"/>");
-  client.print("<input type=\"range\" id=\"text_outline_range\" "
-               "name=\"text_outline_range\" ");
-  client.print("min=\"0\" max=\"255\" step=\"1\" value=\"0\" "
-               "style=\"flex-grow:1;\"/>");
-  client.print("</div>");
-  client.print("</form>");
-  client.print("<hr style=\"margin-left:0px;\"/>");
-  // --- Text input fields
-  client.print("<form style=\"display: flex; flex-direction: "
-               "column; gap: 4px;\">");
-  client.print("<label for=\"input_text_top\">Class/Course: </label>");
-  client.print(
+  content += WiFi.localIP();
+  content +=
+      "</h1>"
+      "<small>Can't find which display you're talking to? <a "
+      "id=\"identify_button\" href=\"#\">"
+      "Identify.</a></small>"
+      "<hr style=\"margin-left:0px;\"/>"
+      // --- Text fill color input (number and range)
+      "<form style=\"display: flex; flex-direction: "
+      "column; gap: 4px;\">"
+      "<div style=\"display: flex; flex-direction: "
+      "row; gap: 2px;\">"
+      "<label for=\"text_fill_number\" style=\"align-content: "
+      "center;width: 150px;\">Text fill color: </label>"
+      "<input type=\"number\" id=\"text_fill_number\" "
+      "name=\"text_fill_number\" "
+      "placeholder=\"170\" value=\"170\" min=\"0\" max=\"255\"/>"
+      "<input type=\"range\" id=\"text_fill_range\" name=\"text_fill_range\" "
+      "min=\"0\" max=\"255\" step=\"1\" value=\"170\" "
+      "style=\"flex-grow:1;\"/>"
+      "</div>"
+      // --- Text outline color input (number and range)
+      "<div style=\"display: flex; flex-direction: "
+      "row; gap: 2px;\">"
+      "<label for=\"text_outline_number\" style=\"align-content: "
+      "center; width: 150px;\">Text outline color: </label>"
+      "<input type=\"number\" id=\"text_outline_number\" "
+      "name=\"text_outline_number\" "
+      "placeholder=\"170\" value=\"0\" min=\"0\" max=\"255\"/>"
+      "<input type=\"range\" id=\"text_outline_range\" "
+      "name=\"text_outline_range\" "
+      "min=\"0\" max=\"255\" step=\"1\" value=\"0\" "
+      "style=\"flex-grow:1;\"/>"
+      "</div>"
+      "</form>"
+      "<hr style=\"margin-left:0px;\"/>"
+      // --- Text input fields
+      "<form style=\"display: flex; flex-direction: "
+      "column; gap: 4px;\">"
+      "<label for=\"input_text_top\">Class/Course: </label>"
       "<input type=\"text\" id=\"input_text_top\" name=\"input_text_top\" "
-      "placeholder=\"Computer Science\"/>");
-  client.print("<label for=\"input_title\">Room: </label>");
-  client.print("<input type=\"text\" id=\"input_title\" name=\"input_title\" "
-               "placeholder=\"S12\"/>");
-  client.print("<label for=\"input_text_bottom\">Extra info: </label>");
-  client.print("<input type=\"text\" id=\"input_text_bottom\" "
-               "name=\"input_text_bottom\" "
-               "placeholder=\"13:45-14:35\" />");
-  client.print("</form>");
-  client.print("<hr style=\"margin-left:0px;\"/>");
-  // --- Color selection button
-  client.print("<form style=\"display: flex; flex-direction: "
-               "row; align-items: center;\">");
-  client.print("<label for=\"input_color\">Background color: </label>");
-  client.print("<input type=\"color\" id=\"input_color\" name=\"input_color\" "
-               "value=\"#ffffff\" style=\"margin-left:10px;\" />");
-  client.print("</form>");
-  client.print("<hr style=\"margin-left:0px;\"/>");
-  // --- File selection button
-  client.print("<div style=\"display: flex; flex-direction: "
-               "row;\">");
-  client.print("<form>");
-  client.print(
+      "placeholder=\"Computer Science\"/>"
+      "<label for=\"input_title\">Room: </label>"
+      "<input type=\"text\" id=\"input_title\" name=\"input_title\" "
+      "placeholder=\"S12\"/>"
+      "<label for=\"input_text_bottom\">Extra info: </label>"
+      "<input type=\"text\" id=\"input_text_bottom\" "
+      "name=\"input_text_bottom\" "
+      "placeholder=\"13:45-14:35\" />"
+      "</form>"
+      "<hr style=\"margin-left:0px;\"/>"
+      // --- Color selection button
+      "<form style=\"display: flex; flex-direction: "
+      "row; align-items: center;\">"
+      "<label for=\"input_color\">Background color: </label>"
+      "<input type=\"color\" id=\"input_color\" name=\"input_color\" "
+      "value=\"#ffffff\" style=\"margin-left:10px;\" />"
+      "</form>"
+      "<hr style=\"margin-left:0px;\"/>"
+      // --- File selection button
+      "<div style=\"display: flex; flex-direction: "
+      "row;\">"
+      "<form>"
       "<input style=\"margin-bottom: 6px; min-width: 0px;\"type=\"file\" "
       "id=\"input_file\" name=\"input_file\" "
-      "accept=\"image/*\" />");
-  client.print("</form>");
-  // --- Display resolution reminder
-  client.print("<div style=\"text-align: right; flex-grow:1; align-content: "
-               "end;\">");
-  client.print("<small style=\"padding-left:2px;padding-right:2px;"
-               "\">600x448px</small>");
-  client.print("</div>");
-  client.print("</div>");
-  // --- The Mighty Canvas, Storer of Image Data.
-  client.print("<div>");
-  client.print(
+      "accept=\"image/*\" />"
+      "</form>"
+      // --- Display resolution reminder
+      "<div style=\"text-align: right; flex-grow:1; align-content: "
+      "end;\">"
+      "<small style=\"padding-left:2px;padding-right:2px;"
+      "\">600x448px</small>"
+      "</div>"
+      "</div>"
+      // --- The Mighty Canvas, Storer of Image Data.
+      "<div>"
       "<canvas id=\"canvas\" width=\"600\" height=\"448\" "
-      "style=\"outline: ButtonBorder 1px solid; width:100%;\"></canvas>");
-  client.print("</div>");
-  // --- Button to send canvas image to display, and progress bar.
-  client.print("<div style=\"display: flex; margin-top:6px;\">");
-  client.print("<button style=\"margin-right: 7px\" id=\"push_button\">Push to "
-               "screen</button>");
-  client.print("<progress style=\"flex-grow: 1\" id=\"progress\" value=\"0\" "
-               "max=\"100\"></progress>");
-  client.print("</div>");
-  client.print("<hr style=\"margin-left:0px;\"/>");
-  // --- Footer
-  client.print(
+      "style=\"outline: ButtonBorder 1px solid; width:100%;\"></canvas>"
+      "</div>"
+      // --- Button to send canvas image to display, and progress bar.
+      "<div style=\"display: flex; margin-top:6px;\">"
+      "<button style=\"margin-right: 7px\" id=\"push_button\">Push to "
+      "screen</button>"
+      "<progress style=\"flex-grow: 1\" id=\"progress\" value=\"0\" "
+      "max=\"100\"></progress>"
+      "</div>"
+      "<hr style=\"margin-left:0px;\"/>"
+      // --- Footer
       "<small>Built by Edward Hesketh, open source at <a "
       "href=\"https://github.com/headblockhead/"
-      "wifi-doorsign\">github:headblockhead/wifi-doorsign</a></small>");
-  client.print("</div>");
-  // This img tag is hidden, and stores the original selected image as a
-  // reference.
-  client.print("<img width=\"600\" height=\"448\" id=\"img\" src=\"\" "
-               "alt=\"Source image\" style=\"display:none\" />");
+      "wifi-doorsign\">github:headblockhead/wifi-doorsign</a></small>"
+      "</div>"
+      // This img tag is hidden, and stores the original selected image as a
+      // reference.
+      "<img width=\"600\" height=\"448\" id=\"img\" src=\"\" "
+      "alt=\"Source image\" style=\"display:none\" />"
 
-  // JS time!
-  client.print("<script>");
+      // JS time!
+      "<script>"
 
-  // Define the RGB values of the colors used in the display.
-  client.print("var palette = "
-               "[[0,0,0],[255,255,255],[0,255,0],[0,0,255],[255,0,"
-               "0],[255,255,"
-               "0],[255,128,0]];");
+      // Define the RGB values of the colors used in the display.
+      "var palette = "
+      "[[0,0,0],[255,255,255],[0,255,0],[0,0,255],[255,0,"
+      "0],[255,255,"
+      "0],[255,128,0]];"
 
-  // Load the font.
-  client.print("var Font24 = new FontFace('Ubuntu Mono', "
-               "'url(https://fonts.gstatic.com/s/"
-               "ubuntumono/v17/KFO-CneDtsqEr0keqCMhbC-BL9H1tY0.woff2)');"
-               "Font24.load().then(function(font) {"
-               "document.fonts.add(font);"
-               "});");
+      // Load the font.
+      "var Font24 = new FontFace('Ubuntu Mono', "
+      "'url(https://fonts.gstatic.com/s/"
+      "ubuntumono/v17/KFO-CneDtsqEr0keqCMhbC-BL9H1tY0.woff2)';"
+      "Font24.load().then(function(font) {"
+      "document.fonts.add(font;"
+      "};"
 
-  // When a file is selected,
-  client.print("document.getElementById('input_file')."
-               "addEventListener('change'"
-               ", function(e) {");
-  client.print("var file = e.target.files[0];");
-  client.print("var reader = new FileReader();");
-  client.print("reader.onload = function(e) {");
-  // Set the invisible image's source to the selected file.
-  client.print("document.getElementById('img').src = e.target.result;");
-  client.print("};");
-  client.print("reader.readAsDataURL(file);");
-  client.print("img.onload = function() {");
-  // When the image is loaded, update the canvas.
-  client.print("updateImage(img);");
-  client.print("};");
-  client.print("});");
+      // When a file is selected,
+      "document.getElementById('input_file')."
+      "addEventListener('change'"
+      ", function(e) {"
+      "var file = e.target.files[0];"
+      "var reader = new FileReader(;"
+      "reader.onload = function(e) {"
+      // Set the invisible image's source to the selected file.
+      "document.getElementById('img').src = e.target.result;"
+      "};"
+      "reader.readAsDataURL(file;"
+      "img.onload = function() {"
+      // When the image is loaded, update the canvas.
+      "updateImage(img;"
+      "};"
+      "};"
 
-  // Assign actions to the buttons.
+      // Assign actions to the buttons.
 
-  // This button sends the image to the display.
-  client.print("document.getElementById('push_button')."
-               "addEventListener('click', "
-               "function() {");
-  client.print("pushImage(document.getElementById('canvas'));");
-  client.print("});");
+      // This button sends the image to the display.
+      "document.getElementById('push_button')."
+      "addEventListener('click', "
+      "function() {"
+      "pushImage(document.getElementById('canvas');"
+      "};"
 
-  // This button draws the IP of the display on the canvas very
-  // large, then sends that image to the display.
-  client.print("document.getElementById('identify_button')."
-               "addEventListener('click', "
-               "function() {");
-  client.print("event.preventDefault();");
-  client.print("var canvas = document.getElementById('canvas');");
-  client.print("var ctx = canvas.getContext('2d');");
-  client.print("canvas.width = 600;");
-  client.print("canvas.height = 448;");
-  client.print("ctx.font = '48px Ubuntu Mono';");
-  client.print("ctx.fillStyle = '#ffffff';");
-  client.print("ctx.strokeStyle = '#000000';");
-  client.print("ctx.fillText('");
-  client.print(WiFi.localIP());
-  client.print("', 300 - ctx.measureText('");
-  client.print(WiFi.localIP());
-  client.print("').width/2,448-48);");
-  client.print("ctx.font = '256px Ubuntu Mono';");
-  client.print("ctx.fillText('IDENT', 300 - "
-               "ctx.measureText('IDENT').width/2,"
-               "448-192);");
-  client.print("var new_canvas = seven_color_dither(ctx);");
-  client.print("ctx.drawImage(new_canvas, 0, 0);");
-  client.print("document.getElementById('push_button').focus({"
-               "focusVisible: true});");
-  client.print("document.getElementById('push_button').scrollIntoView();");
-  client.print("});");
+      // This button draws the IP of the display on the canvas very
+      // large, then sends that image to the display.
+      "document.getElementById('identify_button')."
+      "addEventListener('click', "
+      "function() {"
+      "event.preventDefault(;"
+      "var canvas = document.getElementById('canvas';"
+      "var ctx = canvas.getContext('2d';"
+      "canvas.width = 600;"
+      "canvas.height = 448;"
+      "ctx.font = '48px Ubuntu Mono';"
+      "ctx.fillStyle = '#ffffff';"
+      "ctx.strokeStyle = '#000000';"
+      "ctx.fillText('";
+  content += WiFi.localIP();
+  content += "', 300 - ctx.measureText('";
+  content += WiFi.localIP();
+  content += "').width/2,448-48;"
+             "ctx.font = '256px Ubuntu Mono';"
+             "ctx.fillText('IDENT', 300 - "
+             "ctx.measureText('IDENT').width/2,"
+             "448-192;"
+             "var new_canvas = seven_color_dither(ctx;"
+             "ctx.drawImage(new_canvas, 0, 0;"
+             "document.getElementById('push_button').focus({"
+             "focusVisible: true};"
+             "document.getElementById('push_button').scrollIntoView(;"
+             "};"
 
-  // Update the image live as changes are made to the various text
-  // fields.
+             // Update the image live as changes are made to the various text
+             // fields.
 
-  client.print("document.getElementById('input_title')."
-               "addEventListener('input', "
-               "function() {");
-  client.print("updateImage(document.getElementById('img'));");
-  client.print("});");
-  client.print("document.getElementById('input_text_top')."
-               "addEventListener('input', "
-               "function() {");
-  client.print("updateImage(document.getElementById('img'));");
-  client.print("});");
-  client.print("document.getElementById('input_text_bottom')."
-               "addEventListener('input', "
-               "function() {");
-  client.print("updateImage(document.getElementById('img'));");
-  client.print("});");
+             "document.getElementById('input_title')."
+             "addEventListener('input', "
+             "function() {"
+             "updateImage(document.getElementById('img');"
+             "};"
+             "document.getElementById('input_text_top')."
+             "addEventListener('input', "
+             "function() {"
+             "updateImage(document.getElementById('img');"
+             "};"
+             "document.getElementById('input_text_bottom')."
+             "addEventListener('input', "
+             "function() {"
+             "updateImage(document.getElementById('img');"
+             "};"
 
-  // Update the image when the color input changes.
-  client.print("document.getElementById('input_color')."
-               "addEventListener('input', "
-               "function() {");
-  client.print("updateImage(document.getElementById('img'));");
-  client.print("});");
+             // Update the image when the color input changes.
+             "document.getElementById('input_color')."
+             "addEventListener('input', "
+             "function() {"
+             "updateImage(document.getElementById('img');"
+             "};"
 
-  // Match the number input to the range input, and vice versa.
-  // Also, update the image when the value changes.
+             // Match the number input to the range input, and vice versa.
+             // Also, update the image when the value changes.
 
-  client.print("document.getElementById('text_fill_number')."
-               "addEventListener('input'"
-               ", function() {");
-  client.print("document.getElementById('text_fill_range').value = "
-               "document.getElementById('text_fill_number').value;");
-  client.print("updateImage(document.getElementById('img'));");
-  client.print("});");
+             "document.getElementById('text_fill_number')."
+             "addEventListener('input'"
+             ", function() {"
+             "document.getElementById('text_fill_range').value = "
+             "document.getElementById('text_fill_number').value;"
+             "updateImage(document.getElementById('img');"
+             "};"
+             "document.getElementById('text_fill_range')."
+             "addEventListener('input'"
+             ", function() {"
+             "document.getElementById('text_fill_number').value = "
+             "document.getElementById('text_fill_range').value;"
+             "updateImage(document.getElementById('img');"
+             "};"
+             "document.getElementById('text_outline_number')."
+             "addEventListener('input'"
+             ", function() {"
+             "document.getElementById('text_outline_range').value = "
+             "document.getElementById('text_outline_number').value;"
+             "updateImage(document.getElementById('img');"
+             "};"
+             "document.getElementById('text_outline_range')."
+             "addEventListener('input'"
+             ", function() {"
+             "document.getElementById('text_outline_number').value = "
+             "document.getElementById('text_outline_range').value;"
+             "updateImage(document.getElementById('img');"
+             "};"
 
-  client.print("document.getElementById('text_fill_range')."
-               "addEventListener('input'"
-               ", function() {");
-  client.print("document.getElementById('text_fill_number').value = "
-               "document.getElementById('text_fill_range').value;");
-  client.print("updateImage(document.getElementById('img'));");
-  client.print("});");
+             // updateImage draws the canvas image from the source image,
+             // adding text.
+             "function updateImage(img) {"
+             "var width = 600;"
+             "var height = 448;"
+             "var text = document.getElementById('input_title').value;"
+             "var top_text = "
+             "document.getElementById('input_text_top').value;"
+             "var bottom_text = "
+             "document.getElementById('input_text_bottom').value;"
+             "var textBrightness = "
+             "document.getElementById('text_fill_number')."
+             "valueAsNumber;"
+             "var outlineBrightness = "
+             "document.getElementById('text_outline_number')."
+             "valueAsNumber;"
+             "var canvas = document.getElementById('canvas';"
+             "var ctx = canvas.getContext('2d';"
+             "canvas.width = width;"
+             "canvas.height = height;"
 
-  client.print("document.getElementById('text_outline_number')."
-               "addEventListener('input'"
-               ", function() {");
-  client.print("document.getElementById('text_outline_range').value = "
-               "document.getElementById('text_outline_number').value;");
-  client.print("updateImage(document.getElementById('img'));");
-  client.print("});");
+             // Fill the canvas with the background color.
+             "ctx.fillStyle = "
+             "document.getElementById('input_color').value;"
+             "ctx.fillRect(0, 0, width, height;"
 
-  client.print("document.getElementById('text_outline_range')."
-               "addEventListener('input'"
-               ", function() {");
-  client.print("document.getElementById('text_outline_number').value = "
-               "document.getElementById('text_outline_range').value;");
-  client.print("updateImage(document.getElementById('img'));");
-  client.print("});");
+             // Draw the source image on the canvas, stretching/squeezing to
+             // fit if needed.
+             "ctx.drawImage(img, 0, 0,width,height;"
 
-  // updateImage draws the canvas image from the source image,
-  // adding text.
-  client.print("function updateImage(img) {");
-  client.print("var width = 600;");
-  client.print("var height = 448;");
-  client.print("var text = document.getElementById('input_title').value;");
-  client.print("var top_text = "
-               "document.getElementById('input_text_top').value;");
-  client.print("var bottom_text = "
-               "document.getElementById('input_text_bottom').value;");
-  client.print("var textBrightness = "
-               "document.getElementById('text_fill_number')."
-               "valueAsNumber;");
-  client.print("var outlineBrightness = "
-               "document.getElementById('text_outline_number')."
-               "valueAsNumber;");
-  client.print("var canvas = document.getElementById('canvas');");
-  client.print("var ctx = canvas.getContext('2d');");
-  client.print("canvas.width = width;");
-  client.print("canvas.height = height;");
+             // Set the font to draw the text with.
+             "ctx.font = '288px Ubuntu Mono';"
 
-  // Fill the canvas with the background color.
-  client.print("ctx.fillStyle = "
-               "document.getElementById('input_color').value;");
-  client.print("ctx.fillRect(0, 0, width, height);");
+             // Set the fill and stroke colors for the text.
+             "ctx.fillStyle = "
+             "\"#\" + textBrightness.toString(16).repeat(3) + \"ff\";"
+             "ctx.strokeStyle = "
+             "\"#\" + outlineBrightness.toString(16).repeat(3) "
+             "+ \"ff\";"
 
-  // Draw the source image on the canvas, stretching/squeezing to
-  // fit if needed.
-  client.print("ctx.drawImage(img, 0, 0,width,height);");
+             // When drawing the fill, preserve the hue and chroma of the
+             // bottom layer, while adopting the luma of the top layer.
+             "ctx.globalCompositeOperation = 'luminosity';"
 
-  // Set the font to draw the text with.
-  client.print("ctx.font = '288px Ubuntu Mono';");
+             // Draw the title text's fill.
+             "ctx.fillText(text, 300 - "
+             "ctx.measureText(text).width/2"
+             ",448-144;"
 
-  // Set the fill and stroke colors for the text.
-  client.print("ctx.fillStyle = "
-               "\"#\" + textBrightness.toString(16).repeat(3) + \"ff\";");
-  client.print("ctx.strokeStyle = "
-               "\"#\" + outlineBrightness.toString(16).repeat(3) "
-               "+ \"ff\";");
+             // Set the font for the top and bottom text.
+             "ctx.font = '50px Ubuntu Mono';"
 
-  // When drawing the fill, preserve the hue and chroma of the
-  // bottom layer, while adopting the luma of the top layer.
-  client.print("ctx.globalCompositeOperation = 'luminosity';");
+             // Draw the top and bottom texts' fill.
+             "ctx.fillText(top_text, 300 - "
+             "ctx.measureText(top_text).width/2"
+             ",75;"
+             "ctx.fillText(bottom_text, 300 - "
+             "ctx.measureText(bottom_text).width/2"
+             ",448-50;"
 
-  // Draw the title text's fill.
-  client.print("ctx.fillText(text, 300 - "
-               "ctx.measureText(text).width/2"
-               ",448-144);");
+             // When drawing the outline, replace pixels beneath.
+             "ctx.globalCompositeOperation = 'source-over';"
 
-  // Set the font for the top and bottom text.
-  client.print("ctx.font = '50px Ubuntu Mono';");
+             // Draw the title text's outline.
+             "ctx.font = '288px Ubuntu Mono';"
+             "ctx.lineWidth = 8;"
+             "ctx.strokeText(text, 300 - "
+             "ctx.measureText(text).width/2"
+             ",448-144;"
 
-  // Draw the top and bottom texts' fill.
-  client.print("ctx.fillText(top_text, 300 - "
-               "ctx.measureText(top_text).width/2"
-               ",75);");
-  client.print("ctx.fillText(bottom_text, 300 - "
-               "ctx.measureText(bottom_text).width/2"
-               ",448-50);");
+             // Draw the top and bottom texts' outline.
+             "ctx.font = '50px Ubuntu Mono';"
+             "ctx.lineWidth = 2;"
+             "ctx.strokeText(top_text, 300 - "
+             "ctx.measureText(top_text).width/2"
+             ",75;"
+             "ctx.strokeText(bottom_text, 300 - "
+             "ctx.measureText(bottom_text).width/2"
+             ",448-50;"
 
-  // When drawing the outline, replace pixels beneath.
-  client.print("ctx.globalCompositeOperation = 'source-over';");
+             // Dither the canvas image, then replace the current image with
+             // the dithered version.
+             "var new_canvas = seven_color_dither(ctx;"
+             "ctx.drawImage(new_canvas, 0, 0;"
+             "}"
 
-  // Draw the title text's outline.
-  client.print("ctx.font = '288px Ubuntu Mono';");
-  client.print("ctx.lineWidth = 8;");
-  client.print("ctx.strokeText(text, 300 - "
-               "ctx.measureText(text).width/2"
-               ",448-144);");
+             // pushImage converts the canvas contents into bytes, that are
+             // then sent to the display.
+             "function pushImage(canvas) {"
+             "var ctx = canvas.getContext('2d';"
+             // Get image data as RGBA bytes.
+             "var data = ctx.getImageData(0, 0, 600, 448).data;"
+             // Store the image data in a string, with each byte representing
+             // two pixels.
+             "var textify = '';"
 
-  // Draw the top and bottom texts' outline.
-  client.print("ctx.font = '50px Ubuntu Mono';");
-  client.print("ctx.lineWidth = 2;");
-  client.print("ctx.strokeText(top_text, 300 - "
-               "ctx.measureText(top_text).width/2"
-               ",75);");
-  client.print("ctx.strokeText(bottom_text, 300 - "
-               "ctx.measureText(bottom_text).width/2"
-               ",448-50);");
+             "for (var i = 0; i < data.length; i += 8) {"
+             "var cha = 0x00;"
 
-  // Dither the canvas image, then replace the current image with
-  // the dithered version.
-  client.print("var new_canvas = seven_color_dither(ctx);");
-  client.print("ctx.drawImage(new_canvas, 0, 0);");
-  client.print("}");
+             "var r1 = data[i];"
+             "var g1 = data[i + 1];"
+             "var b1 = data[i + 2];"
+             "var ind1 = getNear(r1,g1,b1;"
+             "cha |= ind1 << 4;"
 
-  // pushImage converts the canvas contents into bytes, that are
-  // then sent to the display.
-  client.print("function pushImage(canvas) {");
-  client.print("var ctx = canvas.getContext('2d');");
-  // Get image data as RGBA bytes.
-  client.print("var data = ctx.getImageData(0, 0, 600, 448).data;");
-  // Store the image data in a string, with each byte representing
-  // two pixels.
-  client.print("var textify = '';");
+             "var r2 = data[i + 4];"
+             "var g2 = data[i + 5];"
+             "var b2 = data[i + 6];"
+             "var ind2 = getNear(r2,g2,b2;"
+             "cha |= ind2;"
 
-  client.print("for (var i = 0; i < data.length; i += 8) {");
-  client.print("var cha = 0x00;");
+             "textify += String.fromCharCode(cha;"
+             "}"
 
-  client.print("var r1 = data[i];");
-  client.print("var g1 = data[i + 1];");
-  client.print("var b1 = data[i + 2];");
-  client.print("var ind1 = getNear(r1,g1,b1);");
-  client.print("cha |= ind1 << 4;");
+             // Prepare a POST request to /image.
+             "var xhr = new XMLHttpRequest(;"
+             "xhr.open('POST', '/image', true;"
+             "xhr.setRequestHeader('Content-Type', 'application/octet-"
+             "stream';"
 
-  client.print("var r2 = data[i + 4];");
-  client.print("var g2 = data[i + 5];");
-  client.print("var b2 = data[i + 6];");
-  client.print("var ind2 = getNear(r2,g2,b2);");
-  client.print("cha |= ind2;");
+             // Set the progress bar to 0, and the color to the default.
+             "document.getElementById('progress').value = 0;"
+             "document.getElementById('progress').style.accentColor = "
+             "\"auto\";"
 
-  client.print("textify += String.fromCharCode(cha);");
-  client.print("}");
+             // When the upload progress changes, update the progress bar.
+             "xhr.upload.onprogress = function(e) {"
+             "if (e.lengthComputable) {"
+             "var percentComplete = (e.loaded / e.total) * 100;"
+             "document.getElementById('progress').value = "
+             "percentComplete;"
+             "}"
+             "};"
 
-  // Prepare a POST request to /image.
-  client.print("var xhr = new XMLHttpRequest();");
-  client.print("xhr.open('POST', '/image', true);");
-  client.print("xhr.setRequestHeader('Content-Type', 'application/octet-"
-               "stream');");
+             // When uploading finishes, set the progress bar's color to
+             // green.
+             "xhr.onload = function() {"
+             "document.getElementById('progress').value = 100;"
+             "document.getElementById('progress').style."
+             "accentColor = \"green\";"
+             "updateImage(document.getElementById('img');"
+             "document.getElementById('push_button').blur(;"
+             "};"
 
-  // Set the progress bar to 0, and the color to the default.
-  client.print("document.getElementById('progress').value = 0;");
-  client.print("document.getElementById('progress').style.accentColor = "
-               "\"auto\";");
+             // Send the POST request with the image data!
+             "xhr.send(textify;"
+             "}"
 
-  // When the upload progress changes, update the progress bar.
-  client.print("xhr.upload.onprogress = function(e) {");
-  client.print("if (e.lengthComputable) {");
-  client.print("var percentComplete = (e.loaded / e.total) * 100;");
-  client.print("document.getElementById('progress').value = "
-               "percentComplete;");
-  client.print("}");
-  client.print("};");
+             // A few helper functions provided helpfully by Waveshare.
+             "function addVal(c,r,g,b,k){"
+             "return[c[0]+(r*k)/32,c[1]+(g*k)/32,c[2]+(b*k)/32];"
+             "}"
+             "function getNear(r,g,b) {"
+             "var ind= 0;"
+             "var err= 1000000;"
+             "for (var i = 0; i < 7; i++) {"
+             "var curErr = "
+             "(r-palette[i][0])*(r-palette[i][0])+(g-palette[i][1])*(g-"
+             "palette[i][1])+(b-palette[i][2])*(b-palette[i][2];"
+             "if (curErr < err) {"
+             "err = curErr;"
+             "ind = i;"
+             "}"
+             "}"
+             "return ind;"
+             "}"
 
-  // When uploading finishes, set the progress bar's color to
-  // green.
-  client.print("xhr.onload = function() {");
-  client.print("document.getElementById('progress').value = 100;");
-  client.print("document.getElementById('progress').style."
-               "accentColor = \"green\";");
-  client.print("updateImage(document.getElementById('img'));");
-  client.print("document.getElementById('push_button').blur();");
-  client.print("};");
+             // seven_color_dither function, provided by Waveshare, and
+             // simplified by me.
+             "function seven_color_dither(ctx) {"
+             "var width = 600;"
+             "var height = 448;"
+             "var index = 0;"
+             "var pSrc = ctx.getImageData(0, 0, width, height;"
+             "var pDst = ctx.createImageData(width, height;"
+             "var aInd = 0;"
+             "var bInd = 1;"
+             "var errArr = new Array(2;"
+             "errArr[0] = new Array(width;"
+             "errArr[1] = new Array(width;"
+             "for (var i = 0; i < width; i++) {"
+             "errArr[bInd][i] = [0,0,0];"
+             "}"
+             "for (var y = 0; y < height; y++) {"
+             "aInd = ((bInd=aInd)+1)&1;"
+             "for (var x = 0; x < width; x++) {"
+             "errArr[bInd][x] = [0,0,0];"
+             "}"
+             "for (var x = 0; x < width; x++) {"
+             "var pos = (y * width + x) * 4;"
+             "var old = errArr[aInd][x];"
+             "var r = pSrc.data[pos] + old[0];"
+             "var g = pSrc.data[pos + 1] + old[1];"
+             "var b = pSrc.data[pos + 2] + old[2];"
+             "var colVal = palette[getNear(r,g,b)];"
+             "pDst.data[index++] = colVal[0];"
+             "pDst.data[index++] = colVal[1];"
+             "pDst.data[index++] = colVal[2];"
+             "pDst.data[index++] = 255;"
+             "r = (r - colVal[0];"
+             "g = (g - colVal[1];"
+             "b = (b - colVal[2];"
+             "if (x ==0) {"
+             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,7.0;"
+             "errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,2.0;"
+             "errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0;"
+             "} else if (x == width - 1) {"
+             "errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,7.0;"
+             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,9.0;"
+             "} else {"
+             "errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,3.0;"
+             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,5.0;"
+             "errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,1.0;"
+             "errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0;"
+             "}"
+             "}"
+             "}"
+             "ctx.putImageData(pDst, 0, 0;"
+             "return canvas;"
+             "}"
+             "</script>"
 
-  // Send the POST request with the image data!
-  client.print("xhr.send(textify);");
-  client.print("}");
+             // Close the HTML tags.
+             "</body></html>";
 
-  // A few helper functions provided helpfully by Waveshare.
-  client.print("function addVal(c,r,g,b,k){");
-  client.print("return[c[0]+(r*k)/32,c[1]+(g*k)/32,c[2]+(b*k)/32];");
-  client.print("}");
-  client.print("function getNear(r,g,b) {");
-  client.print("var ind= 0;");
-  client.print("var err= 1000000;");
-  client.print("for (var i = 0; i < 7; i++) {");
-  client.print("var curErr = "
-               "(r-palette[i][0])*(r-palette[i][0])+(g-palette[i][1])*(g-"
-               "palette[i][1])+(b-palette[i][2])*(b-palette[i][2]);");
-  client.print("if (curErr < err) {");
-  client.print("err = curErr;");
-  client.print("ind = i;");
-  client.print("}");
-  client.print("}");
-  client.print("return ind;");
-  client.print("}");
-
-  // seven_color_dither function, provided by Waveshare, and
-  // simplified by me.
-  client.print("function seven_color_dither(ctx) {");
-  client.print("var width = 600;");
-  client.print("var height = 448;");
-  client.print("var index = 0;");
-  client.print("var pSrc = ctx.getImageData(0, 0, width, height);");
-  client.print("var pDst = ctx.createImageData(width, height);");
-  client.print("var aInd = 0;");
-  client.print("var bInd = 1;");
-  client.print("var errArr = new Array(2);");
-  client.print("errArr[0] = new Array(width);");
-  client.print("errArr[1] = new Array(width);");
-  client.print("for (var i = 0; i < width; i++) {");
-  client.print("errArr[bInd][i] = [0,0,0];");
-  client.print("}");
-  client.print("for (var y = 0; y < height; y++) {");
-  client.print("aInd = ((bInd=aInd)+1)&1;");
-  client.print("for (var x = 0; x < width; x++) {");
-  client.print("errArr[bInd][x] = [0,0,0];");
-  client.print("}");
-  client.print("for (var x = 0; x < width; x++) {");
-  client.print("var pos = (y * width + x) * 4;");
-  client.print("var old = errArr[aInd][x];");
-  client.print("var r = pSrc.data[pos] + old[0];");
-  client.print("var g = pSrc.data[pos + 1] + old[1];");
-  client.print("var b = pSrc.data[pos + 2] + old[2];");
-  client.print("var colVal = palette[getNear(r,g,b)];");
-  client.print("pDst.data[index++] = colVal[0];");
-  client.print("pDst.data[index++] = colVal[1];");
-  client.print("pDst.data[index++] = colVal[2];");
-  client.print("pDst.data[index++] = 255;");
-  client.print("r = (r - colVal[0]);");
-  client.print("g = (g - colVal[1]);");
-  client.print("b = (b - colVal[2]);");
-  client.print("if (x ==0) {");
-  client.print("errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,7.0);");
-  client.print("errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,2.0);");
-  client.print("errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0);");
-  client.print("} else if (x == width - 1) {");
-  client.print("errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,7.0);");
-  client.print("errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,9.0);");
-  client.print("} else {");
-  client.print("errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,3.0);");
-  client.print("errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,5.0);");
-  client.print("errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,1.0);");
-  client.print("errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0);");
-  client.print("}");
-  client.print("}");
-  client.print("}");
-  client.print("ctx.putImageData(pDst, 0, 0);");
-  client.print("return canvas;");
-  client.print("}");
-  client.print("</script>");
-
-  // Close the HTML tags.
-  client.print("</body></html>");
-
+  client.print(content);
   // It's *finally* over, close the connection.
   client.stop();
 
