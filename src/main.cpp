@@ -40,7 +40,7 @@ void setup() {
   // this should ideally be disabled during development as this blocks the web
   // server.
 
-#if TRUE
+#if true
 
   // Write IP address to display.
 
