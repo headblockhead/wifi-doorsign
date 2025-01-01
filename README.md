@@ -17,7 +17,7 @@ I was challenged to create a fun door sign for the Computer Science department r
 
 I used contrasting colors for the text fill and text outline, along with a very large font to ensure it can be read from a distance, and monospaced to ensure it will fit on the screen.
 
-### Easy to use, with an intuative interface
+### Easy to use, with an intuitive interface
 
 I decided to use a webpage to make it incredibly easy to update the display, and to allow for a preview of the display before it is updated. It offloads the image processing to the web client, meaning much faster update times, realtime change preview, and support of more image formats. The option is also provided to set a background color, meaning an image is not required if the user prefers a solid color - or to fill in the background of a transparent image.
 
