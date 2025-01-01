@@ -9,7 +9,7 @@ A WiFi-connected ePaper display used as a fancy door sign.
 
 The current door signs in my school are small boring stickers that don't really allow for any creativity, or useful information aside from the room number/code. 
 
-I was challenged to create a door sign for the Computer Science department rooms that can display a color picture background, along with the room code, and additional information. I was allowed to borrow a 7-color ePaper display and controller to develop with over the Christmas holidays for fun.
+I was challenged to create a fun door sign for the Computer Science department rooms that can display a seasonal picture background, along with the room code and additional information. I was allowed to borrow a 7-color ePaper display and controller to develop with over the Christmas holidays for fun.
 
 ## Design considerations
 
