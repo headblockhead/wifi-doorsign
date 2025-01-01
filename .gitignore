@@ -1,4 +1,4 @@
-include/wifi.h
+include/secrets.h
 .pioenvs
 .piolibdeps
 .clang_complete

@@ -33,7 +33,7 @@ I chose PlatformIO as the build system as it is much quicker and easier to use t
 
 ### Secure
 
-The WiFi credentials are hardcoded into the firmware, so access to update the screen's contents is restricted to those who have physical access to the device's USB port, or have the credentials to connect to the same WiFi network that the screen is connected to.
+The WiFi credentials are hardcoded into the firmware, so access to update the screen's contents is restricted to those who have physical access to the device's USB port, or have the credentials to connect to the same WiFi network that the screen is connected to. Finally, a username/password combo is required to access the web interface, so only those who know the credentials can update the screen.
 
 ## How?
 
@@ -46,7 +46,7 @@ https://github.com/user-attachments/assets/719105b5-a09b-4d02-a22d-3bb571632b7c
 ![IP setup screen](ip_splash.JPEG)
 ![image screen](hackclub.JPEG)
 
-Wifi credentials are stored under `include/wifi.h` which is gitignore'd, see [`include/wifi_example.h`](include/wifi_example.h) for an example.
+Wifi credentials are stored under `include/secrets.h` which is gitignore'd, see [`include/secrets_example.h`](include/secrets_example.h) for an example.
 
 ## Tasks
 

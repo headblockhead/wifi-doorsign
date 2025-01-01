@@ -1,5 +1,5 @@
 // Having issues compiling? See wifi_example.h!
-#include "wifi.h"
+#include "secrets.h"
 
 #include "display.h"
 #include "paint.h"
@@ -160,41 +160,26 @@ void loop() {
 
   printf("\nReading client request: ");
 
+  bool isAuthed = false;
   bool isPost = false;
   bool isGet = false;
-  bool headersComplete = false;
-  int consecutiveNewlines = 0;
-  int i = 0;
+  bool readingData = false;
 
   // While there is data available, read it.
+  String line = "";
   while (client.available()) {
     // Read one byte at a time.
     char c = client.read();
-
-    // If the first character is a P, assume it's a POST request.
-    if (i == 0 && c == 'P') {
-      printf("POST\n");
-      isPost = true;
+    if (readingData) {
+      EPD_SendData(c);
+      continue;
     }
-
-    // If the first character is a G, assume it's a GET request.
-    if (i == 0 && c == 'G') {
-      printf("GET\n");
-      isGet = true;
-    }
-
-    // Headers end with two newlines (\r\n\r\n).
-    if (c == '\n' || c == '\r') {
-      consecutiveNewlines++;
-    } else {
-      consecutiveNewlines = 0;
-    }
-
-    if (consecutiveNewlines == 4 && !headersComplete) {
-      headersComplete = true;
-      // POST requests are sending us display bytes, so we need to prepare the
-      // display.
-      if (isPost) {
+    if (c != '\n' && c != '\r') {
+      line += c;
+    } else if (c == '\n') {
+      if (line.length() == 0 && isPost && isAuthed) {
+        // End of headers.
+        readingData = true;
         EPD_Init();
         EPD_SendCommand(0x61);
         EPD_SendData(0x02);
@@ -203,17 +188,29 @@ void loop() {
         EPD_SendData(0xC0);
         EPD_SendCommand(0x10);
       }
-      // GET requests aren't sending us data after the headers, so we don't need
-      // to do anything here.
+      if (line.startsWith("POST")) {
+        printf("POST request\n");
+        isPost = true;
+      }
+      if (line.startsWith("GET")) {
+        printf("GET request\n");
+        isPost = false;
+      }
+      if (line.indexOf(auth_key) != -1) {
+        printf("Auth key found\n");
+        isAuthed = true;
+      }
+      line = "";
     }
+  }
 
-    if (headersComplete && isPost) {
-      // Stream data to the display's framebuffer.
-      EPD_SendData(c);
-    }
-
-    // Increment the character index.
-    i++;
+  if (!isAuthed) {
+    printf("Not authorized, sending 401\n");
+    client.print("HTTP/1.1 401 Unauthorized\nContent-Type: "
+                 "text/html\nWWW-Authenticate: Basic\n\n");
+    client.print("401 Unauthorized");
+    client.stop();
+    return;
   }
 
   printf("Sending response.\n");
@@ -270,7 +267,7 @@ void loop() {
       "<h1 style=\"text-align:center;\">wifi-doorsign ";
   // Add our IP to the title, to make it very obvious which device we're
   // interacting with.
-  content += WiFi.localIP();
+  content += WiFi.localIP().toString();
   content +=
       "</h1>"
       "<small>Can't find which display you're talking to? <a "
@@ -379,27 +376,27 @@ void loop() {
       // Load the font.
       "var Font24 = new FontFace('Ubuntu Mono', "
       "'url(https://fonts.gstatic.com/s/"
-      "ubuntumono/v17/KFO-CneDtsqEr0keqCMhbC-BL9H1tY0.woff2)';"
+      "ubuntumono/v17/KFO-CneDtsqEr0keqCMhbC-BL9H1tY0.woff2)');"
       "Font24.load().then(function(font) {"
-      "document.fonts.add(font;"
-      "};"
+      "document.fonts.add(font);"
+      "});"
 
       // When a file is selected,
       "document.getElementById('input_file')."
       "addEventListener('change'"
       ", function(e) {"
       "var file = e.target.files[0];"
-      "var reader = new FileReader(;"
+      "var reader = new FileReader();"
       "reader.onload = function(e) {"
       // Set the invisible image's source to the selected file.
       "document.getElementById('img').src = e.target.result;"
       "};"
-      "reader.readAsDataURL(file;"
+      "reader.readAsDataURL(file);"
       "img.onload = function() {"
       // When the image is loaded, update the canvas.
-      "updateImage(img;"
+      "updateImage(img);"
       "};"
-      "};"
+      "});"
 
       // Assign actions to the buttons.
 
@@ -407,37 +404,37 @@ void loop() {
       "document.getElementById('push_button')."
       "addEventListener('click', "
       "function() {"
-      "pushImage(document.getElementById('canvas');"
-      "};"
+      "pushImage(document.getElementById('canvas'));"
+      "});"
 
       // This button draws the IP of the display on the canvas very
       // large, then sends that image to the display.
       "document.getElementById('identify_button')."
       "addEventListener('click', "
       "function() {"
-      "event.preventDefault(;"
-      "var canvas = document.getElementById('canvas';"
-      "var ctx = canvas.getContext('2d';"
+      "event.preventDefault();"
+      "var canvas = document.getElementById('canvas');"
+      "var ctx = canvas.getContext('2d');"
       "canvas.width = 600;"
       "canvas.height = 448;"
       "ctx.font = '48px Ubuntu Mono';"
       "ctx.fillStyle = '#ffffff';"
       "ctx.strokeStyle = '#000000';"
       "ctx.fillText('";
-  content += WiFi.localIP();
+  content += WiFi.localIP().toString();
   content += "', 300 - ctx.measureText('";
-  content += WiFi.localIP();
-  content += "').width/2,448-48;"
+  content += WiFi.localIP().toString();
+  content += "').width/2,448-48);"
              "ctx.font = '256px Ubuntu Mono';"
              "ctx.fillText('IDENT', 300 - "
              "ctx.measureText('IDENT').width/2,"
-             "448-192;"
-             "var new_canvas = seven_color_dither(ctx;"
-             "ctx.drawImage(new_canvas, 0, 0;"
+             "448-192);"
+             "var new_canvas = seven_color_dither(ctx);"
+             "ctx.drawImage(new_canvas, 0, 0);"
              "document.getElementById('push_button').focus({"
-             "focusVisible: true};"
-             "document.getElementById('push_button').scrollIntoView(;"
-             "};"
+             "focusVisible: true});"
+             "document.getElementById('push_button').scrollIntoView();"
+             "});"
 
              // Update the image live as changes are made to the various text
              // fields.
@@ -445,25 +442,25 @@ void loop() {
              "document.getElementById('input_title')."
              "addEventListener('input', "
              "function() {"
-             "updateImage(document.getElementById('img');"
-             "};"
+             "updateImage(document.getElementById('img'));"
+             "});"
              "document.getElementById('input_text_top')."
              "addEventListener('input', "
              "function() {"
-             "updateImage(document.getElementById('img');"
-             "};"
+             "updateImage(document.getElementById('img'));"
+             "});"
              "document.getElementById('input_text_bottom')."
              "addEventListener('input', "
              "function() {"
-             "updateImage(document.getElementById('img');"
-             "};"
+             "updateImage(document.getElementById('img'));"
+             "});"
 
              // Update the image when the color input changes.
              "document.getElementById('input_color')."
              "addEventListener('input', "
              "function() {"
-             "updateImage(document.getElementById('img');"
-             "};"
+             "updateImage(document.getElementById('img'));"
+             "});"
 
              // Match the number input to the range input, and vice versa.
              // Also, update the image when the value changes.
@@ -473,29 +470,29 @@ void loop() {
              ", function() {"
              "document.getElementById('text_fill_range').value = "
              "document.getElementById('text_fill_number').value;"
-             "updateImage(document.getElementById('img');"
-             "};"
+             "updateImage(document.getElementById('img'));"
+             "});"
              "document.getElementById('text_fill_range')."
              "addEventListener('input'"
              ", function() {"
              "document.getElementById('text_fill_number').value = "
              "document.getElementById('text_fill_range').value;"
-             "updateImage(document.getElementById('img');"
-             "};"
+             "updateImage(document.getElementById('img'));"
+             "});"
              "document.getElementById('text_outline_number')."
              "addEventListener('input'"
              ", function() {"
              "document.getElementById('text_outline_range').value = "
              "document.getElementById('text_outline_number').value;"
-             "updateImage(document.getElementById('img');"
-             "};"
+             "updateImage(document.getElementById('img'));"
+             "});"
              "document.getElementById('text_outline_range')."
              "addEventListener('input'"
              ", function() {"
              "document.getElementById('text_outline_number').value = "
              "document.getElementById('text_outline_range').value;"
-             "updateImage(document.getElementById('img');"
-             "};"
+             "updateImage(document.getElementById('img'));"
+             "});"
 
              // updateImage draws the canvas image from the source image,
              // adding text.
@@ -513,19 +510,19 @@ void loop() {
              "var outlineBrightness = "
              "document.getElementById('text_outline_number')."
              "valueAsNumber;"
-             "var canvas = document.getElementById('canvas';"
-             "var ctx = canvas.getContext('2d';"
+             "var canvas = document.getElementById('canvas');"
+             "var ctx = canvas.getContext('2d');"
              "canvas.width = width;"
              "canvas.height = height;"
 
              // Fill the canvas with the background color.
              "ctx.fillStyle = "
              "document.getElementById('input_color').value;"
-             "ctx.fillRect(0, 0, width, height;"
+             "ctx.fillRect(0, 0, width, height);"
 
              // Draw the source image on the canvas, stretching/squeezing to
              // fit if needed.
-             "ctx.drawImage(img, 0, 0,width,height;"
+             "ctx.drawImage(img, 0, 0,width,height);"
 
              // Set the font to draw the text with.
              "ctx.font = '288px Ubuntu Mono';"
@@ -544,7 +541,7 @@ void loop() {
              // Draw the title text's fill.
              "ctx.fillText(text, 300 - "
              "ctx.measureText(text).width/2"
-             ",448-144;"
+             ",448-144);"
 
              // Set the font for the top and bottom text.
              "ctx.font = '50px Ubuntu Mono';"
@@ -552,10 +549,10 @@ void loop() {
              // Draw the top and bottom texts' fill.
              "ctx.fillText(top_text, 300 - "
              "ctx.measureText(top_text).width/2"
-             ",75;"
+             ",75);"
              "ctx.fillText(bottom_text, 300 - "
              "ctx.measureText(bottom_text).width/2"
-             ",448-50;"
+             ",448-50);"
 
              // When drawing the outline, replace pixels beneath.
              "ctx.globalCompositeOperation = 'source-over';"
@@ -565,28 +562,28 @@ void loop() {
              "ctx.lineWidth = 8;"
              "ctx.strokeText(text, 300 - "
              "ctx.measureText(text).width/2"
-             ",448-144;"
+             ",448-144);"
 
              // Draw the top and bottom texts' outline.
              "ctx.font = '50px Ubuntu Mono';"
              "ctx.lineWidth = 2;"
              "ctx.strokeText(top_text, 300 - "
              "ctx.measureText(top_text).width/2"
-             ",75;"
+             ",75);"
              "ctx.strokeText(bottom_text, 300 - "
              "ctx.measureText(bottom_text).width/2"
-             ",448-50;"
+             ",448-50);"
 
              // Dither the canvas image, then replace the current image with
              // the dithered version.
-             "var new_canvas = seven_color_dither(ctx;"
-             "ctx.drawImage(new_canvas, 0, 0;"
+             "var new_canvas = seven_color_dither(ctx);"
+             "ctx.drawImage(new_canvas, 0, 0);"
              "}"
 
              // pushImage converts the canvas contents into bytes, that are
              // then sent to the display.
              "function pushImage(canvas) {"
-             "var ctx = canvas.getContext('2d';"
+             "var ctx = canvas.getContext('2d');"
              // Get image data as RGBA bytes.
              "var data = ctx.getImageData(0, 0, 600, 448).data;"
              // Store the image data in a string, with each byte representing
@@ -599,23 +596,23 @@ void loop() {
              "var r1 = data[i];"
              "var g1 = data[i + 1];"
              "var b1 = data[i + 2];"
-             "var ind1 = getNear(r1,g1,b1;"
+             "var ind1 = getNear(r1,g1,b1);"
              "cha |= ind1 << 4;"
 
              "var r2 = data[i + 4];"
              "var g2 = data[i + 5];"
              "var b2 = data[i + 6];"
-             "var ind2 = getNear(r2,g2,b2;"
+             "var ind2 = getNear(r2,g2,b2);"
              "cha |= ind2;"
 
-             "textify += String.fromCharCode(cha;"
+             "textify += String.fromCharCode(cha);"
              "}"
 
              // Prepare a POST request to /image.
-             "var xhr = new XMLHttpRequest(;"
-             "xhr.open('POST', '/image', true;"
+             "var xhr = new XMLHttpRequest();"
+             "xhr.open('POST', '/image', true);"
              "xhr.setRequestHeader('Content-Type', 'application/octet-"
-             "stream';"
+             "stream');"
 
              // Set the progress bar to 0, and the color to the default.
              "document.getElementById('progress').value = 0;"
@@ -637,12 +634,12 @@ void loop() {
              "document.getElementById('progress').value = 100;"
              "document.getElementById('progress').style."
              "accentColor = \"green\";"
-             "updateImage(document.getElementById('img');"
-             "document.getElementById('push_button').blur(;"
+             "updateImage(document.getElementById('img'));"
+             "document.getElementById('push_button').blur();"
              "};"
 
              // Send the POST request with the image data!
-             "xhr.send(textify;"
+             "xhr.send(textify);"
              "}"
 
              // A few helper functions provided helpfully by Waveshare.
@@ -655,7 +652,7 @@ void loop() {
              "for (var i = 0; i < 7; i++) {"
              "var curErr = "
              "(r-palette[i][0])*(r-palette[i][0])+(g-palette[i][1])*(g-"
-             "palette[i][1])+(b-palette[i][2])*(b-palette[i][2];"
+             "palette[i][1])+(b-palette[i][2])*(b-palette[i][2]);"
              "if (curErr < err) {"
              "err = curErr;"
              "ind = i;"
@@ -670,13 +667,13 @@ void loop() {
              "var width = 600;"
              "var height = 448;"
              "var index = 0;"
-             "var pSrc = ctx.getImageData(0, 0, width, height;"
-             "var pDst = ctx.createImageData(width, height;"
+             "var pSrc = ctx.getImageData(0, 0, width, height);"
+             "var pDst = ctx.createImageData(width, height);"
              "var aInd = 0;"
              "var bInd = 1;"
-             "var errArr = new Array(2;"
-             "errArr[0] = new Array(width;"
-             "errArr[1] = new Array(width;"
+             "var errArr = new Array(2);"
+             "errArr[0] = new Array(width);"
+             "errArr[1] = new Array(width);"
              "for (var i = 0; i < width; i++) {"
              "errArr[bInd][i] = [0,0,0];"
              "}"
@@ -696,25 +693,25 @@ void loop() {
              "pDst.data[index++] = colVal[1];"
              "pDst.data[index++] = colVal[2];"
              "pDst.data[index++] = 255;"
-             "r = (r - colVal[0];"
-             "g = (g - colVal[1];"
-             "b = (b - colVal[2];"
+             "r = (r - colVal[0]);"
+             "g = (g - colVal[1]);"
+             "b = (b - colVal[2]);"
              "if (x ==0) {"
-             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,7.0;"
-             "errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,2.0;"
-             "errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0;"
+             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,7.0);"
+             "errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,2.0);"
+             "errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0);"
              "} else if (x == width - 1) {"
-             "errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,7.0;"
-             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,9.0;"
+             "errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,7.0);"
+             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,9.0);"
              "} else {"
-             "errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,3.0;"
-             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,5.0;"
-             "errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,1.0;"
-             "errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0;"
+             "errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,3.0);"
+             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,5.0);"
+             "errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,1.0);"
+             "errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0);"
              "}"
              "}"
              "}"
-             "ctx.putImageData(pDst, 0, 0;"
+             "ctx.putImageData(pDst, 0, 0);"
              "return canvas;"
              "}"
              "</script>"
