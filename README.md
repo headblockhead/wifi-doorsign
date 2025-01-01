@@ -3,6 +3,8 @@
 
 A WiFi-connected ePaper display used as a fancy door sign.
 
+![IP setup screen](ip_splash.JPEG)
+
 ## Why?
 
 The current door signs in my school are small boring stickers that don't really allow for any creativity, or useful information aside from the room number/code. 
@@ -43,7 +45,6 @@ I also ported the library and example code over from using the Arduino IDE to us
 
 https://github.com/user-attachments/assets/719105b5-a09b-4d02-a22d-3bb571632b7c
 
-![IP setup screen](ip_splash.JPEG)
 ![image screen](hackclub.JPEG)
 
 Wifi credentials are stored under `include/secrets.h` which is gitignore'd, see [`include/secrets_example.h`](include/secrets_example.h) for an example.
