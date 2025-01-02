@@ -9,7 +9,7 @@ A WiFi-connected ePaper display used as a fancy door sign.
 
 The current door signs in my school are small boring stickers that don't really allow for any creativity, or useful information aside from the room number/code. 
 
-I was challenged to create a door sign for the Computer Science department rooms that can display a color picture background, along with the room code, and additional information. I was allowed to borrow a 7-color ePaper display and controller to develop with over the Christmas holidays for fun.
+I was challenged to create a fun door sign for the Computer Science department rooms that can display a seasonal picture background, along with the room code and additional information. I was allowed to borrow a 7-color ePaper display and controller to develop with over the Christmas holidays for fun.
 
 ## Design considerations
 
@@ -17,7 +17,7 @@ I was challenged to create a door sign for the Computer Science department rooms
 
 I used contrasting colors for the text fill and text outline, along with a very large font to ensure it can be read from a distance, and monospaced to ensure it will fit on the screen.
 
-### Easy to use, with an intuative interface
+### Easy to use, with an intuitive interface
 
 I created a webpage to make it incredibly easy to update the display, and to allow for a preview of the display before it is updated. By using a web page, I can offload the image processing from the microcontroller to the web browser, meaning much faster update times, realtime change preview, and support of more image formats. I also added the ability to set a background color, meaning an image is not required if the user prefers a solid color - or to fill in the background of a transparent image.
 
