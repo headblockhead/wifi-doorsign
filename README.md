@@ -19,11 +19,11 @@ I used contrasting colors for the text fill and text outline, along with a very 
 
 ### Easy to use, with an intuative interface
 
-I decided to use a webpage to make it incredibly easy to update the display, and to allow for a preview of the display before it is updated. It offloads the image processing to the web client, meaning much faster update times, realtime change preview, and support of more image formats. The option is also provided to set a background color, meaning an image is not required if the user prefers a solid color - or to fill in the background of a transparent image.
+I created a webpage to make it incredibly easy to update the display, and to allow for a preview of the display before it is updated. By using a web page, I can offload the image processing from the microcontroller to the web browser, meaning much faster update times, realtime change preview, and support of more image formats. I also added the ability to set a background color, meaning an image is not required if the user prefers a solid color - or to fill in the background of a transparent image.
 
-The web interface also uses [the color-palette defined by the web client viewing it](https://developer.mozilla.org/en-US/docs/Web/CSS/system-color), so it can be viewed in light mode, dark mode, or with high contrast, if the user prefers.
+I used [the color-palette defined by the web client viewing the page](https://developer.mozilla.org/en-US/docs/Web/CSS/system-color), so the page is displayed in light mode, dark mode, or with high contrast, depending on user preference.
 
-Finally, the interface provides an 'identify' button that writes out the IP of the screen to the display, so it can be easily seen when multiple screens are connected to the same network.
+Finally, I added an 'identify' button that writes out the IP of the screen to the display, so it can be easily seen when multiple screens are connected to the same network.
 
 ### Quick to set-up
 
@@ -39,9 +39,11 @@ The WiFi credentials are hardcoded into the firmware, so access to update the sc
 
 ## How?
 
-I took the [(very poorly-written) example from WaveShare's website](https://files.waveshare.com/upload/5/50/E-Paper_ESP32_Driver_Board_Code.7z) and rewrote the required libraries to understand how the display is controlled, and to make development easier by removing duplicate functionality and clarifying the purpose of ambiguously-named functions.
+I read through the [(very poorly-written) libraries from WaveShare's website](https://files.waveshare.com/upload/5/50/E-Paper_ESP32_Driver_Board_Code.7z) to understand how the display is supposed to be controlled. I renamed many of the functions to make it clearer what each one does, and removed lots of unused and duplicate code, along with code not related to my model of display. 
 
-I also ported the library and example code over from using the Arduino IDE to using PlatformIO, making the build+upload process significantly easier as PlatformIO supports automatically downloading all boards+libraries in one command by reading the platformio.ini file, instead of having to navigate a GUI and copy/paste board and library URLs if using a new machine, making it more maintainable.
+I also ported the library and example code over from using the Arduino IDE to using the PlatformIO build system, making the build+upload process significantly easier (as PlatformIO supports automatically downloading all boards+libraries in one command by reading the platformio.ini file, instead of having to navigate a GUI and copy/paste board+library URLs if using a new machine, making it much easier to build).
+
+Finally, I wrote my own webpage and webserver to allow creating and uploading images to the display. I used one of the examples as source for the 7-color dithering algorithm, but the rest of the code I wrote myself.
 
 https://github.com/user-attachments/assets/719105b5-a09b-4d02-a22d-3bb571632b7c
 
