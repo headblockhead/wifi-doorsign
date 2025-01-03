@@ -1,7 +1,7 @@
 # wifi-doorsign
 [![xc compatible](https://xcfile.dev/badge.svg)](https://xcfile.dev)
 
-A WiFi-connected ePaper display used as a fancy door sign.
+A WiFi-connected [ePaper](https://en.wikipedia.org/wiki/Electronic_paper) display used as a fancy door sign.
 
 ![IP setup screen](ip_splash.JPEG)
 
