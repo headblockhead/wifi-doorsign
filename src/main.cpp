@@ -230,6 +230,8 @@ void loop() {
     EPD_SendCommand(0x02);
     EPD_WaitUntilBusyLow();
 
+    EPD_Sleep();
+
     // Nothing else to do, so return.
     return;
   }
