@@ -424,300 +424,302 @@ void loop() {
   content += WiFi.localIP().toString();
   content += "', 300 - ctx.measureText('";
   content += WiFi.localIP().toString();
-  content += "').width/2,448-48);"
-             "ctx.font = '256px Ubuntu Mono';"
-             "ctx.fillText('IDENT', 300 - "
-             "ctx.measureText('IDENT').width/2,"
-             "448-192);"
-             "var new_canvas = seven_color_dither(ctx);"
-             "ctx.drawImage(new_canvas, 0, 0);"
-             "document.getElementById('push_button').focus({"
-             "focusVisible: true});"
-             "document.getElementById('push_button').scrollIntoView();"
-             "});"
+  content +=
+      "').width/2,448-48);"
+      "ctx.font = '256px Ubuntu Mono';"
+      "ctx.fillText('IDENT', 300 - "
+      "ctx.measureText('IDENT').width/2,"
+      "448-192);"
+      "var new_canvas = seven_color_dither(ctx);"
+      "ctx.drawImage(new_canvas, 0, 0);"
+      "document.getElementById('push_button').focus({"
+      "focusVisible: true});"
+      "document.getElementById('push_button').scrollIntoView();"
+      "});"
 
-             // Update the image live as changes are made to the various text
-             // fields.
+      // Update the image live as changes are made to the various text
+      // fields.
 
-             "document.getElementById('input_title')."
-             "addEventListener('input', "
-             "function() {"
-             "updateImage(document.getElementById('img'));"
-             "});"
-             "document.getElementById('input_text_top')."
-             "addEventListener('input', "
-             "function() {"
-             "updateImage(document.getElementById('img'));"
-             "});"
-             "document.getElementById('input_text_bottom')."
-             "addEventListener('input', "
-             "function() {"
-             "updateImage(document.getElementById('img'));"
-             "});"
+      "document.getElementById('input_title')."
+      "addEventListener('input', "
+      "function() {"
+      "updateImage(document.getElementById('img'));"
+      "});"
+      "document.getElementById('input_text_top')."
+      "addEventListener('input', "
+      "function() {"
+      "updateImage(document.getElementById('img'));"
+      "});"
+      "document.getElementById('input_text_bottom')."
+      "addEventListener('input', "
+      "function() {"
+      "updateImage(document.getElementById('img'));"
+      "});"
 
-             // Update the image when the color input changes.
-             "document.getElementById('input_color')."
-             "addEventListener('input', "
-             "function() {"
-             "updateImage(document.getElementById('img'));"
-             "});"
+      // Update the image when the color input changes.
+      "document.getElementById('input_color')."
+      "addEventListener('input', "
+      "function() {"
+      "updateImage(document.getElementById('img'));"
+      "});"
 
-             // Match the number input to the range input, and vice versa.
-             // Also, update the image when the value changes.
+      // Match the number input to the range input, and vice versa.
+      // Also, update the image when the value changes.
 
-             "document.getElementById('text_fill_number')."
-             "addEventListener('input'"
-             ", function() {"
-             "document.getElementById('text_fill_range').value = "
-             "document.getElementById('text_fill_number').value;"
-             "updateImage(document.getElementById('img'));"
-             "});"
-             "document.getElementById('text_fill_range')."
-             "addEventListener('input'"
-             ", function() {"
-             "document.getElementById('text_fill_number').value = "
-             "document.getElementById('text_fill_range').value;"
-             "updateImage(document.getElementById('img'));"
-             "});"
-             "document.getElementById('text_outline_number')."
-             "addEventListener('input'"
-             ", function() {"
-             "document.getElementById('text_outline_range').value = "
-             "document.getElementById('text_outline_number').value;"
-             "updateImage(document.getElementById('img'));"
-             "});"
-             "document.getElementById('text_outline_range')."
-             "addEventListener('input'"
-             ", function() {"
-             "document.getElementById('text_outline_number').value = "
-             "document.getElementById('text_outline_range').value;"
-             "updateImage(document.getElementById('img'));"
-             "});"
+      "document.getElementById('text_fill_number')."
+      "addEventListener('input'"
+      ", function() {"
+      "document.getElementById('text_fill_range').value = "
+      "document.getElementById('text_fill_number').value;"
+      "updateImage(document.getElementById('img'));"
+      "});"
+      "document.getElementById('text_fill_range')."
+      "addEventListener('input'"
+      ", function() {"
+      "document.getElementById('text_fill_number').value = "
+      "document.getElementById('text_fill_range').value;"
+      "updateImage(document.getElementById('img'));"
+      "});"
+      "document.getElementById('text_outline_number')."
+      "addEventListener('input'"
+      ", function() {"
+      "document.getElementById('text_outline_range').value = "
+      "document.getElementById('text_outline_number').value;"
+      "updateImage(document.getElementById('img'));"
+      "});"
+      "document.getElementById('text_outline_range')."
+      "addEventListener('input'"
+      ", function() {"
+      "document.getElementById('text_outline_number').value = "
+      "document.getElementById('text_outline_range').value;"
+      "updateImage(document.getElementById('img'));"
+      "});"
 
-             // updateImage draws the canvas image from the source image,
-             // adding text.
-             "function updateImage(img) {"
-             "var width = 600;"
-             "var height = 448;"
-             "var text = document.getElementById('input_title').value;"
-             "var top_text = "
-             "document.getElementById('input_text_top').value;"
-             "var bottom_text = "
-             "document.getElementById('input_text_bottom').value;"
-             "var textBrightness = "
-             "document.getElementById('text_fill_number')."
-             "valueAsNumber;"
-             "var outlineBrightness = "
-             "document.getElementById('text_outline_number')."
-             "valueAsNumber;"
-             "var canvas = document.getElementById('canvas');"
-             "var ctx = canvas.getContext('2d');"
-             "canvas.width = width;"
-             "canvas.height = height;"
+      // updateImage draws the canvas image from the source image,
+      // adding text.
+      "function updateImage(img) {"
+      "var width = 600;"
+      "var height = 448;"
+      "var text = document.getElementById('input_title').value;"
+      "var top_text = "
+      "document.getElementById('input_text_top').value;"
+      "var bottom_text = "
+      "document.getElementById('input_text_bottom').value;"
+      "var textBrightness = "
+      "document.getElementById('text_fill_number')."
+      "valueAsNumber;"
+      "var outlineBrightness = "
+      "document.getElementById('text_outline_number')."
+      "valueAsNumber;"
+      "var canvas = document.getElementById('canvas');"
+      "var ctx = canvas.getContext('2d');"
+      "canvas.width = width;"
+      "canvas.height = height;"
 
-             // Fill the canvas with the background color.
-             "ctx.fillStyle = "
-             "document.getElementById('input_color').value;"
-             "ctx.fillRect(0, 0, width, height);"
+      // Fill the canvas with the background color.
+      "ctx.fillStyle = "
+      "document.getElementById('input_color').value;"
+      "ctx.fillRect(0, 0, width, height);"
 
-             // Draw the source image on the canvas, stretching/squeezing to
-             // fit if needed.
-             "ctx.drawImage(img, 0, 0,width,height);"
+      // Draw the source image on the canvas, stretching/squeezing to
+      // fit if needed.
+      "ctx.drawImage(img, 0, 0,width,height);"
 
-             // Set the font to draw the text with.
-             "ctx.font = '288px Ubuntu Mono';"
+      // Set the font to draw the text with.
+      "ctx.font = '288px Ubuntu Mono';"
 
-             // Set the fill and stroke colors for the text.
-             "ctx.fillStyle = "
-             "\"#\" + textBrightness.toString(16).repeat(3) + \"ff\";"
-             "ctx.strokeStyle = "
-             "\"#\" + outlineBrightness.toString(16).repeat(3) "
-             "+ \"ff\";"
+      // Set the fill and stroke colors for the text.
+      "ctx.fillStyle = "
+      "\"#\" + textBrightness.toString(16).padStart(2,\"0\").repeat(3) + "
+      "\"ff\";"
+      "ctx.strokeStyle = "
+      "\"#\" + outlineBrightness.toString(16).padStart(2,\"0\").repeat(3) "
+      "+ \"ff\";"
 
-             // When drawing the fill, preserve the hue and chroma of the
-             // bottom layer, while adopting the luma of the top layer.
-             "ctx.globalCompositeOperation = 'luminosity';"
+      // When drawing the fill, preserve the hue and chroma of the
+      // bottom layer, while adopting the luma of the top layer.
+      "ctx.globalCompositeOperation = 'luminosity';"
 
-             // Draw the title text's fill.
-             "ctx.fillText(text, 300 - "
-             "ctx.measureText(text).width/2"
-             ",448-144);"
+      // Draw the title text's fill.
+      "ctx.fillText(text, 300 - "
+      "ctx.measureText(text).width/2"
+      ",448-144);"
 
-             // Set the font for the top and bottom text.
-             "ctx.font = '50px Ubuntu Mono';"
+      // Set the font for the top and bottom text.
+      "ctx.font = '50px Ubuntu Mono';"
 
-             // Draw the top and bottom texts' fill.
-             "ctx.fillText(top_text, 300 - "
-             "ctx.measureText(top_text).width/2"
-             ",75);"
-             "ctx.fillText(bottom_text, 300 - "
-             "ctx.measureText(bottom_text).width/2"
-             ",448-50);"
+      // Draw the top and bottom texts' fill.
+      "ctx.fillText(top_text, 300 - "
+      "ctx.measureText(top_text).width/2"
+      ",75);"
+      "ctx.fillText(bottom_text, 300 - "
+      "ctx.measureText(bottom_text).width/2"
+      ",448-50);"
 
-             // When drawing the outline, replace pixels beneath.
-             "ctx.globalCompositeOperation = 'source-over';"
+      // When drawing the outline, replace pixels beneath.
+      "ctx.globalCompositeOperation = 'source-over';"
 
-             // Draw the title text's outline.
-             "ctx.font = '288px Ubuntu Mono';"
-             "ctx.lineWidth = 8;"
-             "ctx.strokeText(text, 300 - "
-             "ctx.measureText(text).width/2"
-             ",448-144);"
+      // Draw the title text's outline.
+      "ctx.font = '288px Ubuntu Mono';"
+      "ctx.lineWidth = 8;"
+      "ctx.strokeText(text, 300 - "
+      "ctx.measureText(text).width/2"
+      ",448-144);"
 
-             // Draw the top and bottom texts' outline.
-             "ctx.font = '50px Ubuntu Mono';"
-             "ctx.lineWidth = 2;"
-             "ctx.strokeText(top_text, 300 - "
-             "ctx.measureText(top_text).width/2"
-             ",75);"
-             "ctx.strokeText(bottom_text, 300 - "
-             "ctx.measureText(bottom_text).width/2"
-             ",448-50);"
+      // Draw the top and bottom texts' outline.
+      "ctx.font = '50px Ubuntu Mono';"
+      "ctx.lineWidth = 2;"
+      "ctx.strokeText(top_text, 300 - "
+      "ctx.measureText(top_text).width/2"
+      ",75);"
+      "ctx.strokeText(bottom_text, 300 - "
+      "ctx.measureText(bottom_text).width/2"
+      ",448-50);"
 
-             // Dither the canvas image, then replace the current image with
-             // the dithered version.
-             "var new_canvas = seven_color_dither(ctx);"
-             "ctx.drawImage(new_canvas, 0, 0);"
-             "}"
+      // Dither the canvas image, then replace the current image with
+      // the dithered version.
+      "var new_canvas = seven_color_dither(ctx);"
+      "ctx.drawImage(new_canvas, 0, 0);"
+      "}"
 
-             // pushImage converts the canvas contents into bytes, that are
-             // then sent to the display.
-             "function pushImage(canvas) {"
-             "var ctx = canvas.getContext('2d');"
-             // Get image data as RGBA bytes.
-             "var data = ctx.getImageData(0, 0, 600, 448).data;"
-             // Store the image data in a string, with each byte representing
-             // two pixels.
-             "var textify = '';"
+      // pushImage converts the canvas contents into bytes, that are
+      // then sent to the display.
+      "function pushImage(canvas) {"
+      "var ctx = canvas.getContext('2d');"
+      // Get image data as RGBA bytes.
+      "var data = ctx.getImageData(0, 0, 600, 448).data;"
+      // Store the image data in a string, with each byte representing
+      // two pixels.
+      "var textify = '';"
 
-             "for (var i = 0; i < data.length; i += 8) {"
-             "var cha = 0x00;"
+      "for (var i = 0; i < data.length; i += 8) {"
+      "var cha = 0x00;"
 
-             "var r1 = data[i];"
-             "var g1 = data[i + 1];"
-             "var b1 = data[i + 2];"
-             "var ind1 = getNear(r1,g1,b1);"
-             "cha |= ind1 << 4;"
+      "var r1 = data[i];"
+      "var g1 = data[i + 1];"
+      "var b1 = data[i + 2];"
+      "var ind1 = getNear(r1,g1,b1);"
+      "cha |= ind1 << 4;"
 
-             "var r2 = data[i + 4];"
-             "var g2 = data[i + 5];"
-             "var b2 = data[i + 6];"
-             "var ind2 = getNear(r2,g2,b2);"
-             "cha |= ind2;"
+      "var r2 = data[i + 4];"
+      "var g2 = data[i + 5];"
+      "var b2 = data[i + 6];"
+      "var ind2 = getNear(r2,g2,b2);"
+      "cha |= ind2;"
 
-             "textify += String.fromCharCode(cha);"
-             "}"
+      "textify += String.fromCharCode(cha);"
+      "}"
 
-             // Prepare a POST request to /image.
-             "var xhr = new XMLHttpRequest();"
-             "xhr.open('POST', '/image', true);"
-             "xhr.setRequestHeader('Content-Type', 'application/octet-"
-             "stream');"
+      // Prepare a POST request to /image.
+      "var xhr = new XMLHttpRequest();"
+      "xhr.open('POST', '/image', true);"
+      "xhr.setRequestHeader('Content-Type', 'application/octet-"
+      "stream');"
 
-             // Set the progress bar to 0, and the color to the default.
-             "document.getElementById('progress').value = 0;"
-             "document.getElementById('progress').style.accentColor = "
-             "\"auto\";"
+      // Set the progress bar to 0, and the color to the default.
+      "document.getElementById('progress').value = 0;"
+      "document.getElementById('progress').style.accentColor = "
+      "\"auto\";"
 
-             // When the upload progress changes, update the progress bar.
-             "xhr.upload.onprogress = function(e) {"
-             "if (e.lengthComputable) {"
-             "var percentComplete = (e.loaded / e.total) * 100;"
-             "document.getElementById('progress').value = "
-             "percentComplete;"
-             "}"
-             "};"
+      // When the upload progress changes, update the progress bar.
+      "xhr.upload.onprogress = function(e) {"
+      "if (e.lengthComputable) {"
+      "var percentComplete = (e.loaded / e.total) * 100;"
+      "document.getElementById('progress').value = "
+      "percentComplete;"
+      "}"
+      "};"
 
-             // When uploading finishes, set the progress bar's color to
-             // green.
-             "xhr.onload = function() {"
-             "document.getElementById('progress').value = 100;"
-             "document.getElementById('progress').style."
-             "accentColor = \"green\";"
-             "updateImage(document.getElementById('img'));"
-             "document.getElementById('push_button').blur();"
-             "};"
+      // When uploading finishes, set the progress bar's color to
+      // green.
+      "xhr.onload = function() {"
+      "document.getElementById('progress').value = 100;"
+      "document.getElementById('progress').style."
+      "accentColor = \"green\";"
+      "updateImage(document.getElementById('img'));"
+      "document.getElementById('push_button').blur();"
+      "};"
 
-             // Send the POST request with the image data!
-             "xhr.send(textify);"
-             "}"
+      // Send the POST request with the image data!
+      "xhr.send(textify);"
+      "}"
 
-             // A few helper functions provided helpfully by Waveshare.
-             "function addVal(c,r,g,b,k){"
-             "return[c[0]+(r*k)/32,c[1]+(g*k)/32,c[2]+(b*k)/32];"
-             "}"
-             "function getNear(r,g,b) {"
-             "var ind= 0;"
-             "var err= 1000000;"
-             "for (var i = 0; i < 7; i++) {"
-             "var curErr = "
-             "(r-palette[i][0])*(r-palette[i][0])+(g-palette[i][1])*(g-"
-             "palette[i][1])+(b-palette[i][2])*(b-palette[i][2]);"
-             "if (curErr < err) {"
-             "err = curErr;"
-             "ind = i;"
-             "}"
-             "}"
-             "return ind;"
-             "}"
+      // A few helper functions provided helpfully by Waveshare.
+      "function addVal(c,r,g,b,k){"
+      "return[c[0]+(r*k)/32,c[1]+(g*k)/32,c[2]+(b*k)/32];"
+      "}"
+      "function getNear(r,g,b) {"
+      "var ind= 0;"
+      "var err= 1000000;"
+      "for (var i = 0; i < 7; i++) {"
+      "var curErr = "
+      "(r-palette[i][0])*(r-palette[i][0])+(g-palette[i][1])*(g-"
+      "palette[i][1])+(b-palette[i][2])*(b-palette[i][2]);"
+      "if (curErr < err) {"
+      "err = curErr;"
+      "ind = i;"
+      "}"
+      "}"
+      "return ind;"
+      "}"
 
-             // seven_color_dither function, provided by Waveshare, and
-             // simplified by me.
-             "function seven_color_dither(ctx) {"
-             "var width = 600;"
-             "var height = 448;"
-             "var index = 0;"
-             "var pSrc = ctx.getImageData(0, 0, width, height);"
-             "var pDst = ctx.createImageData(width, height);"
-             "var aInd = 0;"
-             "var bInd = 1;"
-             "var errArr = new Array(2);"
-             "errArr[0] = new Array(width);"
-             "errArr[1] = new Array(width);"
-             "for (var i = 0; i < width; i++) {"
-             "errArr[bInd][i] = [0,0,0];"
-             "}"
-             "for (var y = 0; y < height; y++) {"
-             "aInd = ((bInd=aInd)+1)&1;"
-             "for (var x = 0; x < width; x++) {"
-             "errArr[bInd][x] = [0,0,0];"
-             "}"
-             "for (var x = 0; x < width; x++) {"
-             "var pos = (y * width + x) * 4;"
-             "var old = errArr[aInd][x];"
-             "var r = pSrc.data[pos] + old[0];"
-             "var g = pSrc.data[pos + 1] + old[1];"
-             "var b = pSrc.data[pos + 2] + old[2];"
-             "var colVal = palette[getNear(r,g,b)];"
-             "pDst.data[index++] = colVal[0];"
-             "pDst.data[index++] = colVal[1];"
-             "pDst.data[index++] = colVal[2];"
-             "pDst.data[index++] = 255;"
-             "r = (r - colVal[0]);"
-             "g = (g - colVal[1]);"
-             "b = (b - colVal[2]);"
-             "if (x ==0) {"
-             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,7.0);"
-             "errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,2.0);"
-             "errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0);"
-             "} else if (x == width - 1) {"
-             "errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,7.0);"
-             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,9.0);"
-             "} else {"
-             "errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,3.0);"
-             "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,5.0);"
-             "errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,1.0);"
-             "errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0);"
-             "}"
-             "}"
-             "}"
-             "ctx.putImageData(pDst, 0, 0);"
-             "return canvas;"
-             "}"
-             "</script>"
+      // seven_color_dither function, provided by Waveshare, and
+      // simplified by me.
+      "function seven_color_dither(ctx) {"
+      "var width = 600;"
+      "var height = 448;"
+      "var index = 0;"
+      "var pSrc = ctx.getImageData(0, 0, width, height);"
+      "var pDst = ctx.createImageData(width, height);"
+      "var aInd = 0;"
+      "var bInd = 1;"
+      "var errArr = new Array(2);"
+      "errArr[0] = new Array(width);"
+      "errArr[1] = new Array(width);"
+      "for (var i = 0; i < width; i++) {"
+      "errArr[bInd][i] = [0,0,0];"
+      "}"
+      "for (var y = 0; y < height; y++) {"
+      "aInd = ((bInd=aInd)+1)&1;"
+      "for (var x = 0; x < width; x++) {"
+      "errArr[bInd][x] = [0,0,0];"
+      "}"
+      "for (var x = 0; x < width; x++) {"
+      "var pos = (y * width + x) * 4;"
+      "var old = errArr[aInd][x];"
+      "var r = pSrc.data[pos] + old[0];"
+      "var g = pSrc.data[pos + 1] + old[1];"
+      "var b = pSrc.data[pos + 2] + old[2];"
+      "var colVal = palette[getNear(r,g,b)];"
+      "pDst.data[index++] = colVal[0];"
+      "pDst.data[index++] = colVal[1];"
+      "pDst.data[index++] = colVal[2];"
+      "pDst.data[index++] = 255;"
+      "r = (r - colVal[0]);"
+      "g = (g - colVal[1]);"
+      "b = (b - colVal[2]);"
+      "if (x ==0) {"
+      "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,7.0);"
+      "errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,2.0);"
+      "errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0);"
+      "} else if (x == width - 1) {"
+      "errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,7.0);"
+      "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,9.0);"
+      "} else {"
+      "errArr[bInd][x-1]=addVal(errArr[bInd][x-1],r,g,b,3.0);"
+      "errArr[bInd][x  ]=addVal(errArr[bInd][x  ],r,g,b,5.0);"
+      "errArr[bInd][x+1]=addVal(errArr[bInd][x+1],r,g,b,1.0);"
+      "errArr[aInd][x+1]=addVal(errArr[aInd][x+1],r,g,b,7.0);"
+      "}"
+      "}"
+      "}"
+      "ctx.putImageData(pDst, 0, 0);"
+      "return canvas;"
+      "}"
+      "</script>"
 
-             // Close the HTML tags.
-             "</body></html>";
+      // Close the HTML tags.
+      "</body></html>";
 
   client.print(content);
   // It's *finally* over, close the connection.
